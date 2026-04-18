@@ -6,212 +6,213 @@
     <title>Rasenschach</title>
     <meta
       name="description"
-      content="Rasenschach als interaktives Bundesliga-Kartenspiel: Thesen ziehen, Zuege auf dem Rasen setzen und Punkte holen."
+      content="Rasenschach als Draft-Spiel mit Thesen, Punktefeldern, Schachfiguren und Live-Auswertung."
     />
     <link rel="stylesheet" href="./assets/styles.css" />
   </head>
   <body>
     <main class="shell">
-      <nav class="top-nav">
-        <div class="nav-left">
-          <button class="nav-link is-active" data-view-target="start-view">START</button>
-          <button class="nav-link" data-view-target="table-view">TABELLE</button>
+      <header class="hero panel">
+        <div>
+          <p class="eyebrow">Rasenschach</p>
+          <h1>Draft → Platzierung → reale Ergebnisse → Punkte → Gewinner</h1>
+          <p class="hero-copy">
+            Zwei Spieler draften 12 Fußball-Thesen im Snake-Draft, platzieren sie auf Risiko-Feldern und
+            sammeln danach Bonuspunkte über fünf Schachfiguren.
+          </p>
         </div>
-        <button class="login-ghost" type="button">LOGIN</button>
-      </nav>
+        <div class="scoreboard">
+          <article class="score-card score-card-cyan">
+            <span>Spieler A</span>
+            <strong id="score-a">0</strong>
+            <small>Gesamt</small>
+          </article>
+          <article class="score-card score-card-lime">
+            <span>Spieler B</span>
+            <strong id="score-b">0</strong>
+            <small>Gesamt</small>
+          </article>
+          <article class="score-card score-card-dark">
+            <span>Phase</span>
+            <strong id="phase-label">Draft</strong>
+            <small id="turn-label">Spieler A ist dran</small>
+          </article>
+        </div>
+      </header>
 
-      <section class="view is-visible" id="start-view">
-        <section class="hero-game panel">
-          <div class="hero-copy">
-            <p class="eyebrow">Rasenschach</p>
-            <h1>Interaktives Bundesliga-Kartenspiel auf dem Rasen.</h1>
-            <p class="hero-text">
-              Statt eines freien Taktikboards steht jetzt die Spielidee im Zentrum: Pro Spieltag ziehst du
-              eine These, wählst deinen Zug und spielst Karten auf dem Feld aus. Danach wird die Szene
-              bewertet und in Punkte umgerechnet.
-            </p>
-          </div>
-
-          <div class="score-shell">
-            <article class="score-card score-card-cyan">
-              <span>Calcio</span>
-              <strong id="score-calcio">12</strong>
-              <small>Gesamtpunkte</small>
-            </article>
-            <article class="score-card score-card-lime">
-              <span>Lukas</span>
-              <strong id="score-lukas">10</strong>
-              <small>Gesamtpunkte</small>
-            </article>
-            <article class="score-card score-card-dark">
-              <span>Spieltag</span>
-              <strong id="score-round">05</strong>
-              <small>Laufende Runde</small>
-            </article>
-          </div>
-        </section>
-
-        <section class="game-grid">
-          <div class="game-column">
-            <section class="panel thesis-panel">
-              <div class="section-head">
-                <div>
-                  <p class="eyebrow">These</p>
-                  <h2 id="thesis-title">Bayern gewinnt trotz instabiler Restverteidigung.</h2>
-                </div>
-                <div class="round-chip" id="matchday-chip">Spieltag 5</div>
-              </div>
-              <p class="thesis-copy" id="thesis-copy">
-                Ziehe die Hauptthese des Spieltags, lies den Kontext und entscheide, wie du sie auf dem
-                Rasen absichern willst.
-              </p>
-              <div class="thesis-meta">
-                <div class="meta-pill">
-                  <span>Duell</span>
-                  <strong id="thesis-fixture">Bayern vs Dortmund</strong>
-                </div>
-                <div class="meta-pill">
-                  <span>Fokus</span>
-                  <strong id="thesis-focus">Restverteidigung</strong>
-                </div>
-                <div class="meta-pill">
-                  <span>Wert</span>
-                  <strong id="thesis-stakes">4 Punkte</strong>
-                </div>
-              </div>
-            </section>
-
-            <section class="panel pitch-panel">
-              <div class="section-head">
-                <div>
-                  <p class="eyebrow">Zugbrett</p>
-                  <h2>Spiele die These auf dem Rasen aus</h2>
-                </div>
-                <div class="sim-badge">
-                  <span>Auswertung</span>
-                  <strong id="result-headline">Noch kein Zug gespielt</strong>
-                </div>
-              </div>
-
-              <div class="pitch-game" id="pitch">
-                <div class="pitch-markings"></div>
-                <div class="lane lane-defense"><span>AUFBAU</span></div>
-                <div class="lane lane-middle"><span>ZENTRUM</span></div>
-                <div class="lane lane-attack"><span>ABSCHLUSS</span></div>
-                <div class="zones-layer" id="zones-layer"></div>
-                <div class="slot-row" id="slot-row"></div>
-                <div class="pitch-badge" id="team-badge">Aktive Seite: Calcio</div>
-              </div>
-            </section>
-
-            <section class="panel result-panel">
-              <div class="section-head">
-                <div>
-                  <p class="eyebrow">Urteil</p>
-                  <h2>Wie stark war dein Zug?</h2>
-                </div>
-                <div class="edge-badge" id="confidence-badge">0%</div>
-              </div>
-
-              <article class="analysis-summary">
-                <strong id="analysis-title">Ziehe eine These und setze Karten.</strong>
-                <p id="analysis-description">
-                  Waehle eine Seite, spiele bis zu drei Karten in die Rasenlinien und loese danach die Runde aus.
-                </p>
-              </article>
-
-              <div class="analysis-columns">
-                <div>
-                  <p class="eyebrow small">Staerken</p>
-                  <div class="stack" id="strengths-list"></div>
-                </div>
-                <div>
-                  <p class="eyebrow small">Risiken</p>
-                  <div class="stack" id="weaknesses-list"></div>
-                </div>
-              </div>
-
+      <section class="layout-grid">
+        <div class="main-column">
+          <section class="panel section-panel">
+            <div class="section-head">
               <div>
-                <p class="eyebrow small">Rundennotizen</p>
-                <div class="stack" id="notes-list"></div>
+                <p class="eyebrow">1. Draft Screen</p>
+                <h2>Snake Draft mit 12 Thesen</h2>
               </div>
-            </section>
-          </div>
-
-          <aside class="side-column">
-            <section class="panel">
-              <p class="eyebrow">Spielsteuerung</p>
-
-              <div class="button-row two-up top-space">
-                <button class="team-button is-cyan is-active" id="side-calcio">Calcio</button>
-                <button class="team-button is-lime" id="side-lukas">Lukas</button>
-              </div>
-
-              <div class="control-stack">
-                <button class="primary-button" id="resolve-button">Zug ausspielen</button>
-                <button class="secondary-button" id="next-thesis-button">Neue These ziehen</button>
-                <button class="secondary-button" id="reset-lineup-button">Karten zuruecksetzen</button>
-              </div>
-
-              <div class="meta-grid">
-                <div class="meta-card">
-                  <span>Hand</span>
-                  <strong id="hand-count">0 / 3</strong>
-                </div>
-                <div class="meta-card">
-                  <span>Linie</span>
-                  <strong id="line-focus">Offen</strong>
-                </div>
-              </div>
-            </section>
-
-            <section class="panel">
-              <div class="section-head slim">
-                <div>
-                  <p class="eyebrow">Kartenhand</p>
-                  <h2 class="small-title">Waehle deinen Spielzug</h2>
-                </div>
-              </div>
-              <div class="card-hand" id="card-hand"></div>
-            </section>
-
-            <section class="panel">
-              <div class="section-head slim">
-                <div>
-                  <p class="eyebrow">Rundenarchiv</p>
-                  <h2 class="small-title">Bereits gespielte Zuege</h2>
-                </div>
-              </div>
-              <div class="saved-list" id="saved-list"></div>
-            </section>
-          </aside>
-        </section>
-      </section>
-
-      <section class="view" id="table-view">
-        <section class="panel table-panel">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">Tabelle</p>
-              <h2>Spielstaende ueber alle Spieltage</h2>
+              <div class="pill" id="snake-display">A → B → B → A → A ...</div>
             </div>
-            <div class="round-chip">Season Board</div>
-          </div>
-          <div class="table-shell">
-            <table>
-              <thead>
-                <tr>
-                  <th>Spieltag</th>
-                  <th>These</th>
-                  <th>Sieger</th>
-                  <th>Calcio</th>
-                  <th>Lukas</th>
-                </tr>
-              </thead>
-              <tbody id="table-body"></tbody>
-            </table>
-          </div>
-        </section>
+
+            <div class="draft-topline">
+              <div class="info-chip">
+                <span>Aktueller Pick</span>
+                <strong id="pick-number">1 / 12</strong>
+              </div>
+              <div class="info-chip">
+                <span>Naechster Spieler</span>
+                <strong id="current-player">Spieler A</strong>
+              </div>
+            </div>
+
+            <div class="draft-grid" id="thesis-pool"></div>
+          </section>
+
+          <section class="panel section-panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">2. Spielfeld</p>
+                <h2>Punktefelder fuer jede gedraftete These</h2>
+              </div>
+              <div class="pill" id="placement-status">Warte auf Draft-Abschluss</div>
+            </div>
+
+            <div class="pitch-board">
+              <div class="player-board">
+                <div class="board-head">
+                  <h3>Spieler A</h3>
+                  <p>Gezogene Thesen auf Felder ziehen oder antippen.</p>
+                </div>
+                <div class="drafted-list" id="drafted-a"></div>
+                <div class="field-grid" id="field-grid-a"></div>
+              </div>
+
+              <div class="player-board">
+                <div class="board-head">
+                  <h3>Spieler B</h3>
+                  <p>Jede Platzierung ist ein Risiko-Entscheid.</p>
+                </div>
+                <div class="drafted-list" id="drafted-b"></div>
+                <div class="field-grid" id="field-grid-b"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel section-panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">3. Figuren-Bereich</p>
+                <h2>Bonus-System der 5 Schachfiguren</h2>
+              </div>
+              <div class="pill">Demo-Spieltag</div>
+            </div>
+
+            <div class="figure-grid" id="figure-grid"></div>
+          </section>
+
+          <section class="panel section-panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">5. Ergebnis</p>
+                <h2>Breakdown und Gewinner</h2>
+              </div>
+              <div class="pill" id="winner-pill">Noch nicht ausgewertet</div>
+            </div>
+
+            <div class="result-grid">
+              <article class="result-card">
+                <span>Thesenpunkte A</span>
+                <strong id="thesis-points-a">0</strong>
+              </article>
+              <article class="result-card">
+                <span>Figurenpunkte A</span>
+                <strong id="figure-points-a">0</strong>
+              </article>
+              <article class="result-card">
+                <span>Thesenpunkte B</span>
+                <strong id="thesis-points-b">0</strong>
+              </article>
+              <article class="result-card">
+                <span>Figurenpunkte B</span>
+                <strong id="figure-points-b">0</strong>
+              </article>
+            </div>
+
+            <div class="duel-bar">
+              <div class="duel-fill duel-fill-a" id="duel-fill-a"></div>
+              <div class="duel-fill duel-fill-b" id="duel-fill-b"></div>
+            </div>
+
+            <div class="breakdown-columns">
+              <div>
+                <p class="eyebrow small">Spieler A</p>
+                <div class="stack" id="breakdown-a"></div>
+              </div>
+              <div>
+                <p class="eyebrow small">Spieler B</p>
+                <div class="stack" id="breakdown-b"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="side-column">
+          <section class="panel section-panel">
+            <p class="eyebrow">Steuerung</p>
+            <div class="control-stack">
+              <button class="primary-button" id="auto-place-button">Auto-Platzierung</button>
+              <button class="secondary-button" id="resolve-button">Spieltag auswerten</button>
+              <button class="secondary-button" id="reset-button">Neu starten</button>
+            </div>
+
+            <div class="meta-grid">
+              <div class="meta-card">
+                <span>Drafts A</span>
+                <strong id="draft-count-a">0 / 6</strong>
+              </div>
+              <div class="meta-card">
+                <span>Drafts B</span>
+                <strong id="draft-count-b">0 / 6</strong>
+              </div>
+              <div class="meta-card">
+                <span>Platziert</span>
+                <strong id="placed-count">0 / 12</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel section-panel">
+            <div class="section-head slim">
+              <div>
+                <p class="eyebrow">4. Live Score</p>
+                <h2 class="small-title">Duell-Anzeige</h2>
+              </div>
+            </div>
+            <div class="live-score-card live-score-a">
+              <span>Spieler A</span>
+              <strong id="live-score-a">0</strong>
+              <small id="live-sub-a">wartet auf Auswertung</small>
+            </div>
+            <div class="live-score-card live-score-b">
+              <span>Spieler B</span>
+              <strong id="live-score-b">0</strong>
+              <small id="live-sub-b">wartet auf Auswertung</small>
+            </div>
+          </section>
+
+          <section class="panel section-panel">
+            <div class="section-head slim">
+              <div>
+                <p class="eyebrow">Regelhilfe</p>
+                <h2 class="small-title">Feldlogik</h2>
+              </div>
+            </div>
+            <div class="stack" id="rules-stack">
+              <div class="card neutral">`+3`: positiv = +3, negativ = -3</div>
+              <div class="card neutral">`+1`: positiv = +1, negativ = 0</div>
+              <div class="card neutral">`-1`: negativ = +1, positiv = 0</div>
+              <div class="card neutral">`±3`: positiv = +3, negativ = -3</div>
+              <div class="card neutral">`Zufall`: Effekt wechselt pro Feld</div>
+            </div>
+          </section>
+        </aside>
       </section>
     </main>
 
