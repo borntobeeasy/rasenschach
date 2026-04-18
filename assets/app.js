@@ -1,142 +1,108 @@
-import { createPlayersForFormation, formations } from "./formulas.js";
-import { evaluateSimulation } from "./simulation.js";
+const theses = [
+  {
+    id: 1,
+    spieltag: 5,
+    title: "Bayern gewinnt trotz instabiler Restverteidigung.",
+    copy: "Die Offensive erzeugt genug Druck, aber jeder Ballverlust kippt die Statik. Welche Karten sichern die These ab?",
+    fixture: "Bayern vs Dortmund",
+    focus: "Restverteidigung",
+    stakes: 4,
+    preferredLanes: ["defense", "middle"],
+    keywords: ["absicherung", "kontrolle", "gegenpressing"]
+  },
+  {
+    id: 2,
+    spieltag: 6,
+    title: "Leverkusen knackt den tiefen Block nur ueber den Halbraum.",
+    copy: "Breite allein reicht nicht. Das Spiel kippt erst, wenn der Zwischenlinienraum besetzt und bespielt wird.",
+    fixture: "Leverkusen vs Freiburg",
+    focus: "Halbraum",
+    stakes: 3,
+    preferredLanes: ["middle", "attack"],
+    keywords: ["halbraum", "kombination", "linienbruch"]
+  },
+  {
+    id: 3,
+    spieltag: 7,
+    title: "Stuttgart verteidigt mutig, verliert aber die Tiefe hinter dem Pressing.",
+    copy: "Vorne aggressiv, hinten offen. Die Runde entscheidet sich daran, ob der hohe Zugriff schnell genug abgesichert wird.",
+    fixture: "Stuttgart vs Leipzig",
+    focus: "Pressingtiefe",
+    stakes: 5,
+    preferredLanes: ["defense", "attack"],
+    keywords: ["pressing", "tiefe", "umschalten"]
+  }
+];
 
-const STORAGE_KEY = "rasenschach-saves";
+const deck = [
+  { id: "k1", title: "Pressingfalle", text: "Ballseite ueberladen und den Rueckpass erzwingen.", lane: "middle", tags: ["pressing", "kontrolle"], power: 3 },
+  { id: "k2", title: "Halbraum-Lauf", text: "Dynamik zwischen Aussen- und Innenverteidiger erzeugen.", lane: "attack", tags: ["halbraum", "linienbruch"], power: 4 },
+  { id: "k3", title: "Restfeld 3+2", text: "Hinter dem Ball bleibt eine saubere Sicherung stehen.", lane: "defense", tags: ["absicherung", "kontrolle"], power: 4 },
+  { id: "k4", title: "Diagonalball", text: "Die Seite wechseln, bevor der Block nachschieben kann.", lane: "middle", tags: ["linienbruch", "tempo"], power: 2 },
+  { id: "k5", title: "Tiefer Laufweg", text: "Die letzte Linie nach hinten ziehen und Raum oeffnen.", lane: "attack", tags: ["tiefe", "umschalten"], power: 3 },
+  { id: "k6", title: "Gegenpressing", text: "Nach Ballverlust sofort den Rueckgewinn suchen.", lane: "defense", tags: ["pressing", "absicherung"], power: 3 }
+];
+
+const state = {
+  thesisIndex: 0,
+  activeSide: "calcio",
+  selectedCards: [],
+  scores: { calcio: 12, lukas: 10 },
+  rounds: [],
+  lastResolution: null
+};
+
+const slots = [
+  { id: "slot-defense", lane: "defense", label: "Aufbau" },
+  { id: "slot-middle", lane: "middle", label: "Zentrum" },
+  { id: "slot-attack", lane: "attack", label: "Abschluss" }
+];
 
 const elements = {
-  pitch: document.getElementById("pitch"),
-  playersLayer: document.getElementById("players-layer"),
-  zonesLayer: document.getElementById("zones-layer"),
-  arrowsLayer: document.getElementById("arrows-layer"),
-  scenarioName: document.getElementById("scenario-name"),
-  formationSelect: document.getElementById("formation-select"),
-  toolButtons: [...document.querySelectorAll("[data-tool]")],
-  homeTeamButton: document.getElementById("home-team-button"),
-  awayTeamButton: document.getElementById("away-team-button"),
-  undoButton: document.getElementById("undo-button"),
-  redoButton: document.getElementById("redo-button"),
-  clearButton: document.getElementById("clear-button"),
-  resetButton: document.getElementById("reset-button"),
-  saveButton: document.getElementById("save-button"),
-  shareButton: document.getElementById("share-button"),
-  shareOutput: document.getElementById("share-output"),
-  savedList: document.getElementById("saved-list"),
+  navLinks: [...document.querySelectorAll("[data-view-target]")],
+  views: [...document.querySelectorAll(".view")],
+  scoreCalcio: document.getElementById("score-calcio"),
+  scoreLukas: document.getElementById("score-lukas"),
+  scoreRound: document.getElementById("score-round"),
+  thesisTitle: document.getElementById("thesis-title"),
+  thesisCopy: document.getElementById("thesis-copy"),
+  thesisFixture: document.getElementById("thesis-fixture"),
+  thesisFocus: document.getElementById("thesis-focus"),
+  thesisStakes: document.getElementById("thesis-stakes"),
+  matchdayChip: document.getElementById("matchday-chip"),
   teamBadge: document.getElementById("team-badge"),
-  simOutcome: document.getElementById("sim-outcome"),
-  simConfidence: document.getElementById("sim-confidence"),
+  resultHeadline: document.getElementById("result-headline"),
+  confidenceBadge: document.getElementById("confidence-badge"),
   analysisTitle: document.getElementById("analysis-title"),
   analysisDescription: document.getElementById("analysis-description"),
   strengthsList: document.getElementById("strengths-list"),
   weaknessesList: document.getElementById("weaknesses-list"),
-  notesList: document.getElementById("notes-list")
+  notesList: document.getElementById("notes-list"),
+  sideCalcio: document.getElementById("side-calcio"),
+  sideLukas: document.getElementById("side-lukas"),
+  resolveButton: document.getElementById("resolve-button"),
+  nextThesisButton: document.getElementById("next-thesis-button"),
+  resetLineupButton: document.getElementById("reset-lineup-button"),
+  handCount: document.getElementById("hand-count"),
+  lineFocus: document.getElementById("line-focus"),
+  cardHand: document.getElementById("card-hand"),
+  slotRow: document.getElementById("slot-row"),
+  savedList: document.getElementById("saved-list"),
+  tableBody: document.getElementById("table-body")
 };
 
-function uid() {
-  return Math.random().toString(36).slice(2, 10);
+function getCurrentThesis() {
+  return theses[state.thesisIndex];
 }
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
+function getSelectedForLane(lane) {
+  return state.selectedCards.find((card) => card.lane === lane) || null;
 }
 
-function cloneSnapshot(snapshot) {
-  return {
-    players: snapshot.players.map((player) => ({ ...player })),
-    arrows: snapshot.arrows.map((arrow) => ({ ...arrow, to: { ...arrow.to } })),
-    zones: snapshot.zones.map((zone) => ({ ...zone })),
-    selectedPlayerId: snapshot.selectedPlayerId,
-    activeTeam: snapshot.activeTeam,
-    toolMode: snapshot.toolMode,
-    formation: snapshot.formation,
-    name: snapshot.name
-  };
-}
-
-function readSavedTactics() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function persistSavedTactics(savedTactics) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(savedTactics));
-}
-
-function createInitialSnapshot() {
-  return {
-    players: [...createPlayersForFormation("4-3-3", "home"), ...createPlayersForFormation("4-4-2", "away")],
-    arrows: [],
-    zones: [],
-    selectedPlayerId: "home-10",
-    activeTeam: "home",
-    toolMode: "move",
-    formation: "4-3-3",
-    name: "Training Ground"
-  };
-}
-
-const state = {
-  ...createInitialSnapshot(),
-  pendingArrowFromId: null,
-  dragPlayerId: null,
-  past: [],
-  future: [],
-  savedTactics: readSavedTactics()
-};
-
-function snapshotFromState() {
-  return cloneSnapshot(state);
-}
-
-function pushHistory() {
-  state.past.push(snapshotFromState());
-  if (state.past.length > 80) state.past.shift();
-  state.future = [];
-}
-
-function loadSnapshot(snapshot, trackHistory = true) {
-  if (trackHistory) pushHistory();
-  Object.assign(state, cloneSnapshot(snapshot));
-  state.pendingArrowFromId = state.toolMode === "arrow" ? state.selectedPlayerId : null;
-  state.dragPlayerId = null;
-  render();
-}
-
-function encodeState(snapshot) {
-  return btoa(encodeURIComponent(JSON.stringify(snapshot)));
-}
-
-function decodeState(value) {
-  try {
-    return JSON.parse(decodeURIComponent(atob(value)));
-  } catch {
-    return null;
-  }
-}
-
-function positionFromEvent(event) {
-  const rect = elements.pitch.getBoundingClientRect();
-  return {
-    x: clamp(((event.clientX - rect.left) / rect.width) * 100, 4, 96),
-    y: clamp(((event.clientY - rect.top) / rect.height) * 100, 6, 94)
-  };
-}
-
-function populateFormationSelect() {
-  Object.entries(formations).forEach(([key, value]) => {
-    const option = document.createElement("option");
-    option.value = key;
-    option.textContent = `${key} · ${value.label}`;
-    elements.formationSelect.append(option);
-  });
-}
-
-function renderTextCards(target, items, className) {
+function drawTextCards(target, items, className) {
   target.innerHTML = "";
-  const values = items.length ? items : ["Noch keine markanten Muster erkannt."];
-  values.forEach((item) => {
+  const entries = items.length ? items : ["Noch keine Runde gespielt."];
+  entries.forEach((item) => {
     const node = document.createElement("div");
     node.className = className;
     node.textContent = item;
@@ -144,312 +110,262 @@ function renderTextCards(target, items, className) {
   });
 }
 
-function renderPlayers() {
-  elements.playersLayer.innerHTML = "";
-  state.players.forEach((player) => {
+function computeResolution() {
+  const thesis = getCurrentThesis();
+  const chosen = state.selectedCards;
+  const laneMatches = chosen.filter((card) => thesis.preferredLanes.includes(card.lane)).length;
+  const keywordMatches = chosen.reduce(
+    (sum, card) => sum + card.tags.filter((tag) => thesis.keywords.includes(tag)).length,
+    0
+  );
+  const power = chosen.reduce((sum, card) => sum + card.power, 0);
+  const score = Math.min(96, Math.max(18, 26 + power * 8 + laneMatches * 10 + keywordMatches * 7));
+  const winner = score >= 70 ? state.activeSide : state.activeSide === "calcio" ? "lukas" : "calcio";
+  const pointsWon = score >= 70 ? thesis.stakes : Math.max(1, thesis.stakes - 2);
+
+  const strengths = [];
+  const weaknesses = [];
+  const notes = [];
+
+  if (laneMatches >= 2) strengths.push("Die Karten liegen in den richtigen Spielfeldzonen fuer diese These.");
+  if (keywordMatches >= 2) strengths.push("Die Spielidee der These wird durch passende Mechaniken gestuetzt.");
+  if (power >= 9) strengths.push("Der Zug hat genug Wucht, um als klare Stellung zu wirken.");
+
+  if (chosen.length < 2) weaknesses.push("Zu wenige Karten im Zug. Die These bleibt unterentwickelt.");
+  if (laneMatches === 0) weaknesses.push("Die Karten besetzen nicht die entscheidenden Linien der These.");
+  if (keywordMatches === 0) weaknesses.push("Der Zug greift den Kerngedanken der Runde nicht sauber auf.");
+
+  notes.push(`${chosen.length} von 3 moeglichen Karten wurden gespielt.`);
+  notes.push(`${laneMatches} Karten liegen in Schluesselzonen fuer die aktuelle These.`);
+  notes.push(`${keywordMatches} thematische Treffer verbinden Zug und Spielidee.`);
+
+  return {
+    winner,
+    score,
+    pointsWon,
+    strengths,
+    weaknesses,
+    notes,
+    headline: score >= 70 ? "These sauber ausgespielt" : "These kippt im Verlauf der Runde",
+    description:
+      score >= 70
+        ? `${state.activeSide === "calcio" ? "Calcio" : "Lukas"} bringt die These auf dem Brett in eine stabile Stellung.`
+        : `Der Zug wirkt nicht zwingend genug. ${winner === "calcio" ? "Calcio" : "Lukas"} sammelt die besseren Punkte.`
+  };
+}
+
+function renderThesis() {
+  const thesis = getCurrentThesis();
+  elements.thesisTitle.textContent = thesis.title;
+  elements.thesisCopy.textContent = thesis.copy;
+  elements.thesisFixture.textContent = thesis.fixture;
+  elements.thesisFocus.textContent = thesis.focus;
+  elements.thesisStakes.textContent = `${thesis.stakes} Punkte`;
+  elements.matchdayChip.textContent = `Spieltag ${thesis.spieltag}`;
+  elements.scoreRound.textContent = String(thesis.spieltag).padStart(2, "0");
+}
+
+function renderScores() {
+  elements.scoreCalcio.textContent = state.scores.calcio;
+  elements.scoreLukas.textContent = state.scores.lukas;
+  elements.teamBadge.textContent = `Aktive Seite: ${state.activeSide === "calcio" ? "Calcio" : "Lukas"}`;
+  elements.sideCalcio.classList.toggle("is-active", state.activeSide === "calcio");
+  elements.sideLukas.classList.toggle("is-active", state.activeSide === "lukas");
+}
+
+function renderHand() {
+  elements.cardHand.innerHTML = "";
+  deck.forEach((card) => {
+    const selected = state.selectedCards.some((entry) => entry.id === card.id);
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `player token-${player.team}${player.id === state.selectedPlayerId ? " is-selected" : ""}`;
-    button.style.left = `${player.x}%`;
-    button.style.top = `${player.y}%`;
-    button.innerHTML = `<span>${player.role}</span><small>${player.team === "home" ? "Home" : "Away"}</small>`;
-
-    button.addEventListener("pointerdown", (event) => {
-      event.stopPropagation();
-      state.selectedPlayerId = player.id;
-      state.activeTeam = player.team;
-      if (state.toolMode === "move") {
-        pushHistory();
-        state.dragPlayerId = player.id;
-      }
-      if (state.toolMode === "arrow") {
-        state.pendingArrowFromId = player.id;
-      }
-      render();
-    });
-
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
-      state.selectedPlayerId = player.id;
-      state.activeTeam = player.team;
-      render();
-    });
-
-    elements.playersLayer.append(button);
+    button.className = `play-card${selected ? " is-selected" : ""}`;
+    button.innerHTML = `
+      <span class="play-card-lane">${card.lane.toUpperCase()}</span>
+      <strong>${card.title}</strong>
+      <p>${card.text}</p>
+    `;
+    button.addEventListener("click", () => toggleCard(card));
+    elements.cardHand.append(button);
   });
 }
 
-function renderZones() {
-  elements.zonesLayer.innerHTML = "";
-  state.zones.forEach((zone) => {
-    const div = document.createElement("div");
-    div.className = `zone zone-${zone.team}`;
-    div.style.left = `${zone.x}%`;
-    div.style.top = `${zone.y}%`;
-    div.style.width = `${zone.width}%`;
-    div.style.height = `${zone.height}%`;
-    elements.zonesLayer.append(div);
+function renderSlots() {
+  elements.slotRow.innerHTML = "";
+  slots.forEach((slot) => {
+    const card = getSelectedForLane(slot.lane);
+    const node = document.createElement("button");
+    node.type = "button";
+    node.className = `pitch-slot${card ? " has-card" : ""}`;
+    node.innerHTML = card
+      ? `<span>${slot.label}</span><strong>${card.title}</strong><small>${card.text}</small>`
+      : `<span>${slot.label}</span><strong>Karte platzieren</strong><small>${slot.lane}</small>`;
+    node.addEventListener("click", () => removeLaneCard(slot.lane));
+    elements.slotRow.append(node);
   });
+  elements.handCount.textContent = `${state.selectedCards.length} / 3`;
+  elements.lineFocus.textContent =
+    state.selectedCards.length === 0
+      ? "Offen"
+      : state.selectedCards.map((card) => card.lane).join(" / ").replace("defense", "Aufbau").replace("middle", "Zentrum").replace("attack", "Abschluss");
 }
 
-function renderArrows() {
-  const defs = elements.arrowsLayer.querySelector("defs");
-  elements.arrowsLayer.innerHTML = "";
-  elements.arrowsLayer.append(defs);
-
-  state.arrows.forEach((arrow) => {
-    const origin = state.players.find((player) => player.id === arrow.fromPlayerId);
-    if (!origin) return;
-
-    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    line.setAttribute("x1", origin.x);
-    line.setAttribute("y1", origin.y);
-    line.setAttribute("x2", arrow.to.x);
-    line.setAttribute("y2", arrow.to.y);
-    line.setAttribute("stroke", arrow.team === "home" ? "#d9ff66" : "#62d2ff");
-    line.setAttribute("stroke-width", "0.75");
-    line.setAttribute("stroke-dasharray", "3 2");
-    line.setAttribute("marker-end", `url(#arrowhead-${arrow.team})`);
-    line.setAttribute("opacity", "0.95");
-    elements.arrowsLayer.append(line);
-  });
-}
-
-function renderAnalysis() {
-  const simulation = evaluateSimulation({
-    players: state.players,
-    arrows: state.arrows,
-    zones: state.zones,
-    activeTeam: state.activeTeam
-  });
-
-  const selected = state.players.find((player) => player.id === state.selectedPlayerId);
-
-  elements.simOutcome.textContent = `${simulation.outcome} · ${simulation.confidence}%`;
-  elements.simConfidence.textContent = `${simulation.confidence}% edge`;
-  elements.analysisTitle.textContent = simulation.outcome;
-  elements.analysisDescription.textContent = selected
-    ? `${selected.role} ist aktiv. Nutze die Stellung, um die naechste Aktion taktisch vorzubereiten.`
-    : "Waehle einen Spieler oder veraendere die Staffelung, um die Szene neu zu bewerten.";
-
-  renderTextCards(elements.strengthsList, simulation.strengths, "card positive");
-  renderTextCards(elements.weaknessesList, simulation.weaknesses, "card negative");
-  renderTextCards(elements.notesList, simulation.notes, "card neutral");
-}
-
-function renderSavedTactics() {
+function renderArchive() {
   elements.savedList.innerHTML = "";
-  if (!state.savedTactics.length) {
+  if (!state.rounds.length) {
     const empty = document.createElement("div");
     empty.className = "empty-state";
-    empty.textContent = "Noch keine gespeicherten Taktiken. Speichere eine Szene, sobald die Form passt.";
+    empty.textContent = "Noch keine Runde gespielt. Spiele den ersten Zug aus.";
     elements.savedList.append(empty);
     return;
   }
 
-  state.savedTactics.forEach((entry) => {
+  [...state.rounds].reverse().forEach((round) => {
     const item = document.createElement("article");
     item.className = "saved-item";
     item.innerHTML = `
       <div>
-        <strong>${entry.name}</strong>
-        <span>${new Date(entry.createdAt).toLocaleString("de-DE")}</span>
+        <strong>Spieltag ${round.spieltag}: ${round.winner === "calcio" ? "Calcio" : "Lukas"}</strong>
+        <span>${round.title}</span>
       </div>
-      <div class="saved-actions">
-        <button class="mini-button" data-load="${entry.id}">Load</button>
-        <button class="mini-button danger" data-delete="${entry.id}">Delete</button>
-      </div>
+      <div class="saved-points">+${round.pointsWon}</div>
     `;
     elements.savedList.append(item);
   });
+}
 
-  elements.savedList.querySelectorAll("[data-load]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const target = state.savedTactics.find((entry) => entry.id === button.dataset.load);
-      if (target) loadSnapshot(target.snapshot);
-    });
-  });
+function renderTable() {
+  elements.tableBody.innerHTML = "";
+  if (!state.rounds.length) {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td colspan="5">Noch keine Spieltage entschieden.</td>`;
+    elements.tableBody.append(row);
+    return;
+  }
 
-  elements.savedList.querySelectorAll("[data-delete]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.savedTactics = state.savedTactics.filter((entry) => entry.id !== button.dataset.delete);
-      persistSavedTactics(state.savedTactics);
-      renderSavedTactics();
-    });
+  state.rounds.forEach((round) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${round.spieltag}</td>
+      <td>${round.title}</td>
+      <td>${round.winner === "calcio" ? "Calcio" : "Lukas"}</td>
+      <td>${round.scoreCalcio}</td>
+      <td>${round.scoreLukas}</td>
+    `;
+    elements.tableBody.append(row);
   });
 }
 
-function renderControls() {
-  elements.scenarioName.value = state.name;
-  elements.formationSelect.value = state.formation;
-  elements.teamBadge.textContent = `Aktives Team: ${state.activeTeam === "home" ? "Home" : "Away"}`;
-  elements.toolButtons.forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.tool === state.toolMode);
-  });
-  elements.homeTeamButton.classList.toggle("is-active", state.activeTeam === "home");
-  elements.awayTeamButton.classList.toggle("is-active", state.activeTeam === "away");
-  elements.undoButton.disabled = !state.past.length;
-  elements.redoButton.disabled = !state.future.length;
+function renderResolution() {
+  const resolution = state.lastResolution;
+  if (!resolution) {
+    elements.resultHeadline.textContent = "Noch kein Zug gespielt";
+    elements.confidenceBadge.textContent = "0%";
+    elements.analysisTitle.textContent = "Ziehe eine These und setze Karten.";
+    elements.analysisDescription.textContent =
+      "Waehle eine Seite, spiele bis zu drei Karten in die Rasenlinien und loese danach die Runde aus.";
+    drawTextCards(elements.strengthsList, [], "card positive");
+    drawTextCards(elements.weaknessesList, [], "card negative");
+    drawTextCards(elements.notesList, [], "card neutral");
+    return;
+  }
+
+  elements.resultHeadline.textContent = resolution.headline;
+  elements.confidenceBadge.textContent = `${resolution.score}%`;
+  elements.analysisTitle.textContent = resolution.headline;
+  elements.analysisDescription.textContent = resolution.description;
+  drawTextCards(elements.strengthsList, resolution.strengths, "card positive");
+  drawTextCards(elements.weaknessesList, resolution.weaknesses, "card negative");
+  drawTextCards(elements.notesList, resolution.notes, "card neutral");
 }
 
 function render() {
-  renderPlayers();
-  renderZones();
-  renderArrows();
-  renderAnalysis();
-  renderSavedTactics();
-  renderControls();
+  renderThesis();
+  renderScores();
+  renderHand();
+  renderSlots();
+  renderArchive();
+  renderTable();
+  renderResolution();
 }
 
-function applyFormation(key) {
-  pushHistory();
-  state.formation = key;
-  state.players = [...createPlayersForFormation(key, "home"), ...createPlayersForFormation("4-4-2", "away")];
-  state.arrows = [];
-  state.zones = [];
-  state.selectedPlayerId = state.players.find((player) => player.team === "home" && player.role === "ST")?.id || "home-10";
-  state.activeTeam = "home";
-  state.pendingArrowFromId = null;
+function toggleCard(card) {
+  const exists = state.selectedCards.some((entry) => entry.id === card.id);
+  if (exists) {
+    state.selectedCards = state.selectedCards.filter((entry) => entry.id !== card.id);
+    render();
+    return;
+  }
+
+  if (state.selectedCards.some((entry) => entry.lane === card.lane)) {
+    state.selectedCards = state.selectedCards.filter((entry) => entry.lane !== card.lane);
+  }
+
+  if (state.selectedCards.length >= 3) return;
+  state.selectedCards = [...state.selectedCards, card];
   render();
 }
 
-function resetBoard() {
-  const fresh = createInitialSnapshot();
-  loadSnapshot(fresh, true);
-  state.savedTactics = readSavedTactics();
-  renderSavedTactics();
+function removeLaneCard(lane) {
+  state.selectedCards = state.selectedCards.filter((card) => card.lane !== lane);
+  render();
+}
+
+function resolveRound() {
+  if (!state.selectedCards.length) return;
+  const thesis = getCurrentThesis();
+  const resolution = computeResolution();
+  state.lastResolution = resolution;
+  state.scores[resolution.winner] += resolution.pointsWon;
+  state.rounds.push({
+    spieltag: thesis.spieltag,
+    title: thesis.title,
+    winner: resolution.winner,
+    pointsWon: resolution.pointsWon,
+    scoreCalcio: state.scores.calcio,
+    scoreLukas: state.scores.lukas
+  });
+  render();
+}
+
+function nextThesis() {
+  state.thesisIndex = (state.thesisIndex + 1) % theses.length;
+  state.selectedCards = [];
+  state.lastResolution = null;
+  render();
+}
+
+function setupViews() {
+  elements.navLinks.forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.viewTarget;
+      elements.navLinks.forEach((link) => link.classList.toggle("is-active", link === button));
+      elements.views.forEach((view) => view.classList.toggle("is-visible", view.id === target));
+    });
+  });
 }
 
 function setupEvents() {
-  elements.scenarioName.addEventListener("input", (event) => {
-    state.name = event.target.value;
-  });
+  setupViews();
 
-  elements.formationSelect.addEventListener("change", (event) => {
-    applyFormation(event.target.value);
-  });
-
-  elements.toolButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      state.toolMode = button.dataset.tool;
-      state.pendingArrowFromId = state.toolMode === "arrow" ? state.selectedPlayerId : null;
-      renderControls();
-    });
-  });
-
-  elements.homeTeamButton.addEventListener("click", () => {
-    state.activeTeam = "home";
+  elements.sideCalcio.addEventListener("click", () => {
+    state.activeSide = "calcio";
     render();
   });
 
-  elements.awayTeamButton.addEventListener("click", () => {
-    state.activeTeam = "away";
+  elements.sideLukas.addEventListener("click", () => {
+    state.activeSide = "lukas";
     render();
   });
 
-  elements.undoButton.addEventListener("click", () => {
-    const previous = state.past.pop();
-    if (!previous) return;
-    state.future.unshift(snapshotFromState());
-    loadSnapshot(previous, false);
-  });
-
-  elements.redoButton.addEventListener("click", () => {
-    const next = state.future.shift();
-    if (!next) return;
-    state.past.push(snapshotFromState());
-    loadSnapshot(next, false);
-  });
-
-  elements.clearButton.addEventListener("click", () => {
-    pushHistory();
-    state.arrows = [];
-    state.zones = [];
+  elements.resolveButton.addEventListener("click", resolveRound);
+  elements.nextThesisButton.addEventListener("click", nextThesis);
+  elements.resetLineupButton.addEventListener("click", () => {
+    state.selectedCards = [];
+    state.lastResolution = null;
     render();
-  });
-
-  elements.resetButton.addEventListener("click", resetBoard);
-
-  elements.saveButton.addEventListener("click", () => {
-    const saved = {
-      id: uid(),
-      name: state.name || `Taktik ${state.savedTactics.length + 1}`,
-      createdAt: new Date().toISOString(),
-      snapshot: snapshotFromState()
-    };
-    state.savedTactics = [saved, ...state.savedTactics].slice(0, 8);
-    persistSavedTactics(state.savedTactics);
-    renderSavedTactics();
-  });
-
-  elements.shareButton.addEventListener("click", async () => {
-    const url = `${window.location.origin}${window.location.pathname}?state=${encodeState(snapshotFromState())}`;
-    elements.shareOutput.value = url;
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(url);
-    }
-  });
-
-  elements.pitch.addEventListener("pointermove", (event) => {
-    if (!state.dragPlayerId) return;
-    const next = positionFromEvent(event);
-    const player = state.players.find((entry) => entry.id === state.dragPlayerId);
-    if (!player) return;
-    player.x = next.x;
-    player.y = next.y;
-    render();
-  });
-
-  ["pointerup", "pointerleave", "pointercancel"].forEach((type) => {
-    elements.pitch.addEventListener(type, () => {
-      state.dragPlayerId = null;
-    });
-  });
-
-  elements.pitch.addEventListener("pointerdown", (event) => {
-    if (event.target.closest(".player")) return;
-    const point = positionFromEvent(event);
-
-    if (state.toolMode === "arrow" && state.pendingArrowFromId) {
-      pushHistory();
-      const origin = state.players.find((player) => player.id === state.pendingArrowFromId);
-      if (origin) {
-        state.arrows.push({
-          id: uid(),
-          team: origin.team,
-          fromPlayerId: origin.id,
-          to: point,
-          kind: "pass"
-        });
-      }
-      render();
-      return;
-    }
-
-    if (state.toolMode === "zone") {
-      pushHistory();
-      state.zones.push({
-        id: uid(),
-        team: state.activeTeam,
-        x: clamp(point.x - 8, 6, 82),
-        y: clamp(point.y - 10, 6, 78),
-        width: 16,
-        height: 20
-      });
-      render();
-    }
   });
 }
 
-function hydrateFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const encoded = params.get("state");
-  if (!encoded) return;
-  const snapshot = decodeState(encoded);
-  if (snapshot) loadSnapshot(snapshot, false);
-}
-
-populateFormationSelect();
 setupEvents();
-hydrateFromUrl();
 render();
