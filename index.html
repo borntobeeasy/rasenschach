@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rasenschach</title>
+    <meta
+      name="description"
+      content="Interaktive Taktiktafel fuer Fussball. Aufgebaut als strategisches Rasenschach fuer GitHub Pages."
+    />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero panel">
+        <div class="hero-copy">
+          <p class="eyebrow">Rasenschach</p>
+          <h1>Fussballpositionen als strategisches Brettspiel gedacht.</h1>
+          <p class="hero-text">
+            Diese Version ist komplett statisch aufgebaut, damit sie direkt ueber GitHub Pages laeuft.
+            Der Fokus bleibt auf dem dunklen, reduzierten Spielfeld mit echter Taktik-Interaktion.
+          </p>
+        </div>
+        <div class="hero-cards">
+          <article class="stat-card">
+            <span>Drag</span>
+            <strong>Spieler frei verschieben</strong>
+          </article>
+          <article class="stat-card">
+            <span>Draw</span>
+            <strong>Laufwege, Paesse und Zonen anlegen</strong>
+          </article>
+          <article class="stat-card">
+            <span>Read</span>
+            <strong>Einfache taktische Auswertung erhalten</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="app-grid">
+        <div class="board-column">
+          <section class="panel pitch-panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Tactical Board</p>
+                <h2>Baue die naechste Szene</h2>
+              </div>
+              <div class="sim-badge">
+                <span>Simulation</span>
+                <strong id="sim-outcome">Balanced circulation</strong>
+              </div>
+            </div>
+
+            <div class="pitch" id="pitch">
+              <div class="pitch-markings"></div>
+              <div class="zones-layer" id="zones-layer"></div>
+              <svg class="arrows-layer" id="arrows-layer" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                  <marker id="arrowhead-home" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto">
+                    <path d="M0,0 L0,5 L5,2.5 z" fill="#d9ff66"></path>
+                  </marker>
+                  <marker id="arrowhead-away" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto">
+                    <path d="M0,0 L0,5 L5,2.5 z" fill="#62d2ff"></path>
+                  </marker>
+                </defs>
+              </svg>
+              <div class="players-layer" id="players-layer"></div>
+              <div class="pitch-badge" id="team-badge">Aktives Team: Home</div>
+            </div>
+          </section>
+
+          <section class="panel analysis-panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Analysis</p>
+                <h2>Positionsbild lesen</h2>
+              </div>
+              <div class="edge-badge" id="sim-confidence">64% edge</div>
+            </div>
+
+            <article class="analysis-summary">
+              <strong id="analysis-title">Balanced circulation</strong>
+              <p id="analysis-description">
+                Waehle einen Spieler oder veraendere die Staffelung, um die Szene neu zu bewerten.
+              </p>
+            </article>
+
+            <div class="analysis-columns">
+              <div>
+                <p class="eyebrow small">Staerken</p>
+                <div class="stack" id="strengths-list"></div>
+              </div>
+              <div>
+                <p class="eyebrow small">Schwaechen</p>
+                <div class="stack" id="weaknesses-list"></div>
+              </div>
+            </div>
+
+            <div>
+              <p class="eyebrow small">Notizen</p>
+              <div class="stack" id="notes-list"></div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="side-column">
+          <section class="panel">
+            <p class="eyebrow">Control Room</p>
+            <div class="form-group">
+              <label for="scenario-name">Szenario</label>
+              <input id="scenario-name" type="text" placeholder="Pressingfalle links" />
+            </div>
+
+            <div class="button-row" id="tool-buttons">
+              <button class="tool-button is-active" data-tool="move">Move</button>
+              <button class="tool-button" data-tool="arrow">Arrow</button>
+              <button class="tool-button" data-tool="zone">Zone</button>
+            </div>
+
+            <div class="button-row two-up">
+              <button class="team-button is-home is-active" id="home-team-button">Home</button>
+              <button class="team-button is-away" id="away-team-button">Away</button>
+            </div>
+
+            <div class="form-group">
+              <label for="formation-select">Formation Preset</label>
+              <select id="formation-select"></select>
+            </div>
+
+            <div class="button-row two-up">
+              <button class="secondary-button" id="undo-button">Undo</button>
+              <button class="secondary-button" id="redo-button">Redo</button>
+            </div>
+
+            <div class="button-row two-up">
+              <button class="secondary-button" id="clear-button">Clear Layer</button>
+              <button class="danger-button" id="reset-button">Reset</button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="section-head slim">
+              <div>
+                <p class="eyebrow">Save & Share</p>
+                <h2 class="small-title">Szenen sichern</h2>
+              </div>
+              <button class="primary-button" id="save-button">Save</button>
+            </div>
+
+            <button class="secondary-button full-width" id="share-button">Share-Link erzeugen</button>
+            <input id="share-output" type="text" readonly placeholder="Link erscheint hier" />
+
+            <div class="saved-list" id="saved-list"></div>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script type="module" src="./assets/app.js"></script>
+  </body>
+</html>

@@ -1,35 +1,27 @@
-import { ArrowModel, PlayerModel, SimulationResult, Team, ZoneModel } from "@/types/tactics";
+function distance(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
 
-type EvaluateParams = {
-  players: PlayerModel[];
-  arrows: ArrowModel[];
-  zones: ZoneModel[];
-  activeTeam: Team;
-};
+function average(values) {
+  if (!values.length) return 0;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
 
-const distance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
-  Math.hypot(a.x - b.x, a.y - b.y);
-
-const average = (values: number[]) =>
-  values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
-
-function countCentralOccupancy(players: PlayerModel[], team: Team) {
+function countCentralOccupancy(players, team) {
   return players.filter(
     (player) =>
       player.team === team && player.x >= 38 && player.x <= 72 && player.y >= 30 && player.y <= 70
   ).length;
 }
 
-function countFinalThird(players: PlayerModel[], team: Team) {
+function countFinalThird(players, team) {
   return players.filter((player) => player.team === team && (team === "home" ? player.x >= 67 : player.x <= 33))
     .length;
 }
 
-function passingLaneRisk(arrow: ArrowModel, players: PlayerModel[]) {
+function passingLaneRisk(arrow, players) {
   const origin = players.find((player) => player.id === arrow.fromPlayerId);
-  if (!origin) {
-    return 0;
-  }
+  if (!origin) return 0;
 
   const opponents = players.filter((player) => player.team !== origin.team);
   const laneLength = distance(origin, arrow.to);
@@ -53,12 +45,7 @@ function passingLaneRisk(arrow: ArrowModel, players: PlayerModel[]) {
   }, 0);
 }
 
-export function evaluateSimulation({
-  players,
-  arrows,
-  zones,
-  activeTeam
-}: EvaluateParams): SimulationResult {
+export function evaluateSimulation({ players, arrows, zones, activeTeam }) {
   const ownPlayers = players.filter((player) => player.team === activeTeam);
   const centralControl = countCentralOccupancy(players, activeTeam);
   const finalThirdPresence = countFinalThird(players, activeTeam);
@@ -80,23 +67,23 @@ export function evaluateSimulation({
     outcome = laneRisk > 1 ? "Likely interception" : "Low-threat possession";
   }
 
-  const strengths: string[] = [];
-  const weaknesses: string[] = [];
-  const notes: string[] = [];
+  const strengths = [];
+  const weaknesses = [];
+  const notes = [];
 
-  if (centralControl >= 4) strengths.push("Strong central occupation between the lines");
-  if (finalThirdPresence >= 3) strengths.push("Multiple players threaten the final third");
-  if (zoneAdvantage > 0) strengths.push("Marked zones reinforce the intended attack space");
-  if (spacingScore > 62) strengths.push("Good support distances for combinations");
+  if (centralControl >= 4) strengths.push("Starke Besetzung des Zentrums zwischen den Linien");
+  if (finalThirdPresence >= 3) strengths.push("Mehrere Spieler bedrohen das letzte Drittel");
+  if (zoneAdvantage > 0) strengths.push("Markierte Zonen stuetzen den geplanten Angriff");
+  if (spacingScore > 62) strengths.push("Saubere Abstaende fuer Kombinationen");
 
-  if (laneRisk >= 1.2) weaknesses.push("Passing lane is crowded by defenders");
-  if (finalThirdPresence <= 1) weaknesses.push("Too few runners ahead of the ball");
-  if (spacingScore < 46) weaknesses.push("Players are either too flat or disconnected");
-  if (!arrows.length) weaknesses.push("No programmed actions to destabilize the block");
+  if (laneRisk >= 1.2) weaknesses.push("Passweg ist stark von Gegnern zugestellt");
+  if (finalThirdPresence <= 1) weaknesses.push("Zu wenige Laeufer vor dem Ball");
+  if (spacingScore < 46) weaknesses.push("Staffelung ist zu flach oder zu weit auseinander");
+  if (!arrows.length) weaknesses.push("Keine programmierte Aktion gegen den Block");
 
-  notes.push(`${centralControl} central players are available for progression.`);
-  notes.push(`${finalThirdPresence} players attack the last third.`);
-  notes.push(`${Math.round(laneRisk * 10) / 10} average blockers are close to the active passing lanes.`);
+  notes.push(`${centralControl} zentrale Spieler stehen fuer Progression bereit.`);
+  notes.push(`${finalThirdPresence} Spieler greifen das letzte Drittel an.`);
+  notes.push(`${Math.round(laneRisk * 10) / 10} Gegenspieler liegen im Schnitt nah an den Passwegen.`);
 
   return {
     outcome,

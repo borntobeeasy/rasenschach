@@ -1,11 +1,4 @@
-import { PlayerModel, Team } from "@/types/tactics";
-
-type FormationDefinition = {
-  label: string;
-  layout: Array<{ role: PlayerModel["role"]; x: number; y: number }>;
-};
-
-export const formations: Record<string, FormationDefinition> = {
+export const formations = {
   "4-3-3": {
     label: "4-3-3 Control",
     layout: [
@@ -56,18 +49,15 @@ export const formations: Record<string, FormationDefinition> = {
   }
 };
 
-const suffixForTeam = (team: Team) => (team === "home" ? "A" : "B");
-const mirrorX = (x: number) => 100 - x;
-
-export function createPlayersForFormation(formationKey: string, team: Team): PlayerModel[] {
-  const formation = formations[formationKey] ?? formations["4-3-3"];
-
+export function createPlayersForFormation(formationKey, team) {
+  const formation = formations[formationKey] || formations["4-3-3"];
+  const suffix = team === "home" ? "A" : "B";
   return formation.layout.map((slot, index) => ({
     id: `${team}-${index + 1}`,
     team,
     role: slot.role,
-    label: `${slot.role}${suffixForTeam(team)}${index + 1}`,
-    x: team === "home" ? slot.x : mirrorX(slot.x),
+    label: `${slot.role}${suffix}${index + 1}`,
+    x: team === "home" ? slot.x : 100 - slot.x,
     y: slot.y
   }));
 }
