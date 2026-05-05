@@ -51,17 +51,13 @@
                 <p class="eyebrow">Thesenraum</p>
                 <h2>12 Platzhalter einordnen</h2>
               </div>
-              <button id="resetButton" type="button">Zurücksetzen</button>
+              <div class="action-buttons">
+                <button id="openSettingsButton" type="button">Auswertung öffnen</button>
+                <button id="resetButton" type="button">Zurücksetzen</button>
+              </div>
             </div>
             <div class="thesis-list" id="thesisList"></div>
 
-            <section class="results-panel" aria-label="Ergebnisse eingeben">
-              <div>
-                <p class="eyebrow">Ergebnisse</p>
-                <h2>Werte eingeben</h2>
-              </div>
-              <div class="results-grid" id="resultsGrid"></div>
-            </section>
           </section>
         </div>
       </section>
@@ -79,6 +75,34 @@
         </div>
       </section>
     </main>
+
+    <dialog class="settings-dialog" id="settingsDialog" aria-label="Auswertung eintragen">
+      <form method="dialog" class="settings-shell">
+        <header class="settings-head">
+          <div>
+            <p class="eyebrow">Auswertung</p>
+            <h2>Eintragen</h2>
+          </div>
+          <button class="close-button" type="submit" aria-label="Popup schließen">×</button>
+        </header>
+
+        <section class="results-panel" aria-label="Thesen auswerten">
+          <div>
+            <p class="eyebrow">Thesen</p>
+            <h2>Positiv oder negativ</h2>
+          </div>
+          <div class="evaluation-list" id="evaluationList"></div>
+        </section>
+
+        <section class="results-panel" aria-label="Ergebnisse eingeben">
+          <div>
+            <p class="eyebrow">Ergebnisse</p>
+            <h2>Werte eingeben</h2>
+          </div>
+          <div class="results-grid" id="resultsGrid"></div>
+        </section>
+      </form>
+    </dialog>
 
     <script src="app.js"></script>
   </body>

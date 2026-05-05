@@ -53,7 +53,8 @@ select {
 }
 
 .topbar,
-.thesis-head {
+.thesis-head,
+.settings-head {
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -309,13 +310,36 @@ select {
   background: rgba(255, 254, 250, 0.62);
 }
 
-#resetButton {
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+#resetButton,
+#openSettingsButton,
+.close-button {
   min-height: 38px;
   border: 1px solid var(--ink);
   background: var(--ink);
   color: var(--white);
   padding: 8px 12px;
   cursor: pointer;
+}
+
+#openSettingsButton {
+  background: var(--white);
+  color: var(--ink);
+}
+
+.close-button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  min-height: 42px;
+  padding: 0;
+  font-size: 1.5rem;
 }
 
 .thesis-list {
@@ -340,6 +364,10 @@ select {
   touch-action: none;
 }
 
+.thesis-card.unrated {
+  color: var(--muted);
+}
+
 .thesis-card.assigned {
   border-color: var(--ink);
   box-shadow: inset 0 -4px 0 var(--accent);
@@ -361,13 +389,20 @@ select {
   color: var(--muted);
 }
 
-.thesis-controls {
+.thesis-status {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.thesis-controls,
+.evaluation-controls {
   display: flex;
   gap: 6px;
   width: 100%;
 }
 
-.polarity-button {
+.polarity-button,
+.neutral-button {
   flex: 1;
   min-height: 30px;
   border: 1px solid var(--ink);
@@ -381,12 +416,56 @@ select {
   color: var(--white);
 }
 
+.neutral-button.active {
+  background: var(--muted);
+  color: var(--white);
+}
+
+.settings-dialog {
+  width: min(980px, calc(100% - 28px));
+  max-height: min(760px, calc(100vh - 28px));
+  border: 2px solid var(--ink);
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    var(--paper);
+  background-size: 24px 24px;
+  padding: 0;
+}
+
+.settings-dialog::backdrop {
+  background: rgba(12, 12, 12, 0.52);
+}
+
+.settings-shell {
+  display: grid;
+  gap: 18px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  padding: 20px;
+}
+
 .results-panel {
   display: grid;
   gap: 12px;
-  margin-top: 18px;
-  border-top: 1px solid var(--line);
-  padding-top: 16px;
+}
+
+.evaluation-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.evaluation-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  padding: 10px;
+}
+
+.evaluation-card strong {
+  font-size: 1rem;
 }
 
 .results-grid {
@@ -498,7 +577,8 @@ select {
 
   .match-controls,
   .scoreboard,
-  .results-grid {
+  .results-grid,
+  .evaluation-list {
     grid-template-columns: 1fr;
   }
 

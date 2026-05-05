@@ -18,7 +18,7 @@ const state = {
     id: index + 1,
     side: null,
     piece: null,
-    polarity: index % 3 === 0 ? "negative" : "positive",
+    polarity: null,
     knightSwing: Math.random() > 0.5 ? 1 : -1,
   })),
   results: structuredClone(initialBonuses),
@@ -26,8 +26,11 @@ const state = {
 
 const pieceGrid = document.querySelector("#pieceGrid");
 const thesisList = document.querySelector("#thesisList");
+const evaluationList = document.querySelector("#evaluationList");
 const resultsGrid = document.querySelector("#resultsGrid");
 const resetButton = document.querySelector("#resetButton");
+const openSettingsButton = document.querySelector("#openSettingsButton");
+const settingsDialog = document.querySelector("#settingsDialog");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
@@ -77,22 +80,40 @@ function createThesisList() {
     if (assignment.side && assignment.piece) {
       card.classList.add("assigned");
     }
+    if (!assignment.polarity) {
+      card.classList.add("unrated");
+    }
     card.draggable = true;
     card.dataset.id = assignment.id;
     card.innerHTML = `
       <div class="thesis-title">
         <span>${assignment.id}</span>
-        <span>${assignment.polarity === "positive" ? "+" : "-"}</span>
+        <span>${getPolarityLabel(assignment)}</span>
       </div>
-      <div class="thesis-controls" aria-label="${text} werten">
-        <button class="polarity-button ${assignment.polarity === "positive" ? "active" : ""}" data-id="${assignment.id}" data-polarity="positive" type="button">+</button>
-        <button class="polarity-button ${assignment.polarity === "negative" ? "active" : ""}" data-id="${assignment.id}" data-polarity="negative" type="button">-</button>
-      </div>
+      <span class="thesis-status">${assignment.side ? "abgelegt" : "offen"}</span>
     `;
 
     card.addEventListener("dragstart", handleDragStart);
     card.addEventListener("pointerdown", handlePointerDragStart);
     thesisList.appendChild(card);
+  });
+}
+
+function createEvaluationList() {
+  evaluationList.innerHTML = "";
+
+  state.assignments.forEach((assignment) => {
+    const card = document.createElement("article");
+    card.className = "evaluation-card";
+    card.innerHTML = `
+      <strong>These ${assignment.id}</strong>
+      <div class="evaluation-controls" aria-label="These ${assignment.id} auswerten">
+        <button class="neutral-button ${!assignment.polarity ? "active" : ""}" data-id="${assignment.id}" data-polarity="" type="button">neutral</button>
+        <button class="polarity-button ${assignment.polarity === "positive" ? "active" : ""}" data-id="${assignment.id}" data-polarity="positive" type="button">+</button>
+        <button class="polarity-button ${assignment.polarity === "negative" ? "active" : ""}" data-id="${assignment.id}" data-polarity="negative" type="button">-</button>
+      </div>
+    `;
+    evaluationList.appendChild(card);
   });
 }
 
@@ -117,6 +138,12 @@ function createResultSettings() {
     `;
     resultsGrid.appendChild(group);
   });
+}
+
+function getPolarityLabel(assignment) {
+  if (assignment.polarity === "positive") return "+";
+  if (assignment.polarity === "negative") return "-";
+  return "neutral";
 }
 
 function handleDragStart(event) {
@@ -208,12 +235,12 @@ function movePointerGhost(x, y) {
 }
 
 function getResultBonus(assignment) {
-  if (!assignment.side || !assignment.piece) return 0;
+  if (!assignment.side || !assignment.piece || !assignment.polarity) return 0;
   return Number(state.results[assignment.side][assignment.piece]) || 0;
 }
 
 function getBaseScore(assignment) {
-  if (!assignment.piece) return 0;
+  if (!assignment.piece || !assignment.polarity) return 0;
   const piece = pieces.find((item) => item.id === assignment.piece);
   const sign = assignment.polarity === "positive" ? 1 : -1;
 
@@ -232,7 +259,7 @@ function calculateTotals() {
   const totals = { white: 0, black: 0 };
 
   state.assignments.forEach((assignment) => {
-    if (!assignment.side || !assignment.piece) return;
+    if (!assignment.side || !assignment.piece || !assignment.polarity) return;
     totals[assignment.side] += getBaseScore(assignment) + getResultBonus(assignment);
   });
 
@@ -254,7 +281,7 @@ function renderPlacements() {
     chip.draggable = true;
     chip.dataset.id = assignment.id;
     chip.textContent = assignment.id;
-    chip.title = `${theses[assignment.id - 1]} ${assignment.polarity === "positive" ? "positiv" : "negativ"}`;
+    chip.title = `${theses[assignment.id - 1]} ${getPolarityLabel(assignment)}`;
     chip.addEventListener("dragstart", handleDragStart);
     chip.addEventListener("pointerdown", handlePointerDragStart);
     slot.appendChild(chip);
@@ -281,18 +308,19 @@ function renderTotals() {
 
 function render() {
   createThesisList();
+  createEvaluationList();
   renderPlacements();
   renderTotals();
 }
 
-thesisList.addEventListener("click", (event) => {
-  const button = event.target.closest(".polarity-button");
+evaluationList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-polarity]");
   if (!button) return;
 
   const assignment = state.assignments.find((item) => item.id === Number(button.dataset.id));
   if (!assignment) return;
 
-  assignment.polarity = button.dataset.polarity;
+  assignment.polarity = button.dataset.polarity || null;
   render();
 });
 
@@ -308,12 +336,16 @@ Object.values(nameInputs).forEach((input) => {
   input.addEventListener("input", renderTotals);
 });
 
+openSettingsButton.addEventListener("click", () => {
+  settingsDialog.showModal();
+});
+
 resetButton.addEventListener("click", () => {
   state.assignments = theses.map((_, index) => ({
     id: index + 1,
     side: null,
     piece: null,
-    polarity: index % 3 === 0 ? "negative" : "positive",
+    polarity: null,
     knightSwing: Math.random() > 0.5 ? 1 : -1,
   }));
   state.results = structuredClone(initialBonuses);
