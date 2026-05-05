@@ -58,7 +58,6 @@ function createBoard() {
         cell.dataset.piece = piece.id;
         cell.innerHTML = `
           <div class="cell-value">${piece.value}</div>
-          <div class="cell-meta">${row === "white" ? "Weiß" : "Schwarz"} · ${piece.name}</div>
           <div class="placed-list" data-slot="${row}-${piece.id}"></div>
         `;
         cell.addEventListener("dragover", handleDragOver);
@@ -84,7 +83,7 @@ function createThesisList() {
     card.dataset.id = assignment.id;
     card.innerHTML = `
       <div class="thesis-title">
-        <span>${escapeHtml(theses[assignment.id - 1])}</span>
+        <span class="fit-text">${escapeHtml(theses[assignment.id - 1])}</span>
       </div>
     `;
 
@@ -291,12 +290,34 @@ function renderPlacements() {
     chip.className = "placed-chip";
     chip.draggable = true;
     chip.dataset.id = assignment.id;
-    chip.textContent = theses[assignment.id - 1];
+    chip.innerHTML = `<span class="fit-text">${escapeHtml(theses[assignment.id - 1])}</span>`;
     chip.title = `${theses[assignment.id - 1]} ${getPolarityLabel(assignment)}`;
     chip.addEventListener("dragstart", handleDragStart);
     chip.addEventListener("pointerdown", handlePointerDragStart);
     slot.appendChild(chip);
   });
+}
+
+function fitAllCardText() {
+  requestAnimationFrame(() => {
+    document.querySelectorAll(".thesis-card .fit-text, .placed-chip .fit-text").forEach((text) => {
+      fitTextToContainer(text);
+    });
+  });
+}
+
+function fitTextToContainer(text) {
+  const container = text.closest(".thesis-card, .placed-chip");
+  if (!container) return;
+
+  let size = text.closest(".placed-chip") ? 11 : 16;
+  const minSize = text.closest(".placed-chip") ? 6 : 8;
+  text.style.fontSize = `${size}px`;
+
+  while (size > minSize && (text.scrollHeight > container.clientHeight - 4 || text.scrollWidth > container.clientWidth - 4)) {
+    size -= 1;
+    text.style.fontSize = `${size}px`;
+  }
 }
 
 function renderTotals() {
@@ -322,6 +343,7 @@ function render() {
   createEvaluationList();
   renderPlacements();
   renderTotals();
+  fitAllCardText();
 }
 
 evaluationList.addEventListener("click", (event) => {
@@ -342,6 +364,7 @@ evaluationList.addEventListener("input", (event) => {
   theses[Number(input.dataset.id) - 1] = input.value;
   createThesisList();
   renderPlacements();
+  fitAllCardText();
 });
 
 resultsGrid.addEventListener("input", (event) => {

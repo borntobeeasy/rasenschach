@@ -153,7 +153,6 @@ select {
 
 .field-wrap {
   position: relative;
-  padding-right: 116px;
   width: max-content;
   max-width: 100%;
 }
@@ -193,7 +192,7 @@ select {
 
 .drop-cell {
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto 1fr;
   gap: 5px;
   border-top: 3px solid var(--accent);
   border-bottom: 3px solid var(--accent);
@@ -225,13 +224,6 @@ select {
   line-height: 1;
 }
 
-.cell-meta {
-  color: var(--muted);
-  font-size: clamp(0.62rem, 0.8vw, 0.76rem);
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
 .placed-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -259,6 +251,12 @@ select {
   text-align: center;
 }
 
+.fit-text {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 .drag-ghost {
   position: fixed;
   z-index: 50;
@@ -275,38 +273,6 @@ select {
   text-align: center;
   pointer-events: none;
   transform: translate(-50%, -50%);
-}
-
-.side-note {
-  position: absolute;
-  right: 0;
-  width: 104px;
-  color: var(--ink);
-  font-size: 0.83rem;
-  line-height: 1.2;
-}
-
-.side-note::before {
-  content: "";
-  position: absolute;
-  left: -34px;
-  top: 8px;
-  width: 28px;
-  border-top: 2px solid var(--ink);
-  transform: rotate(-45deg);
-  transform-origin: left center;
-}
-
-.side-note.top {
-  top: 20px;
-}
-
-.side-note.middle {
-  top: 214px;
-}
-
-.side-note.bottom {
-  bottom: 56px;
 }
 
 .thesis-panel {
@@ -352,15 +318,14 @@ select {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
-  max-height: 170px;
-  overflow: auto;
-  padding-right: 4px;
+  grid-auto-rows: minmax(68px, 1fr);
+  overflow: visible;
 }
 
 .thesis-card {
   display: grid;
   place-items: center;
-  min-height: 56px;
+  min-height: 68px;
   border: 1px solid var(--line);
   background: var(--white);
   padding: 8px;
@@ -374,8 +339,7 @@ select {
   width: 100%;
   justify-content: center;
   text-align: center;
-  overflow-wrap: anywhere;
-  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  font-size: 1rem;
   line-height: 1.15;
 }
 
@@ -574,13 +538,8 @@ select {
   }
 
   .field-wrap {
-    padding-right: 0;
     width: 100%;
     overflow-x: auto;
-  }
-
-  .side-note {
-    display: none;
   }
 }
 
