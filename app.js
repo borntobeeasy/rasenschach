@@ -6,39 +6,33 @@ const pieces = [
   { id: "king", name: "König", value: "+/-3", base: 3 },
 ];
 
-const theses = [
-  "These 1",
-  "These 2",
-  "These 3",
-  "These 4",
-  "These 5",
-  "These 6",
-  "These 7",
-  "These 8",
-  "These 9",
-  "These 10",
-  "These 11",
-  "These 12",
-];
+const theses = Array.from({ length: 12 }, (_, index) => `These ${index + 1}`);
+
+const initialBonuses = {
+  white: { rook: 0, bishop: 0, knight: 0, queen: 0, king: 0 },
+  black: { rook: 0, bishop: 0, knight: 0, queen: 0, king: 0 },
+};
 
 const state = {
   assignments: theses.map((_, index) => ({
     id: index + 1,
-    side: index % 2 === 0 ? "white" : "black",
-    piece: pieces[index % pieces.length].id,
+    side: null,
+    piece: null,
     polarity: index % 3 === 0 ? "negative" : "positive",
-    bonus: [1, 2, 0, 1, 1, 0, 1, 2, 0, 1, 1, 0][index],
     knightSwing: Math.random() > 0.5 ? 1 : -1,
   })),
+  results: structuredClone(initialBonuses),
 };
 
 const pieceGrid = document.querySelector("#pieceGrid");
 const thesisList = document.querySelector("#thesisList");
+const resultsGrid = document.querySelector("#resultsGrid");
 const resetButton = document.querySelector("#resetButton");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
 };
+let pointerDrag = null;
 
 function createBoard() {
   pieceGrid.innerHTML = "";
@@ -63,6 +57,9 @@ function createBoard() {
           <div class="cell-meta">${row === "white" ? "Weiß" : "Schwarz"} · ${piece.name}</div>
           <div class="placed-list" data-slot="${row}-${piece.id}"></div>
         `;
+        cell.addEventListener("dragover", handleDragOver);
+        cell.addEventListener("dragleave", handleDragLeave);
+        cell.addEventListener("drop", handleDrop);
       }
 
       pieceGrid.appendChild(cell);
@@ -77,57 +74,146 @@ function createThesisList() {
     const assignment = state.assignments[index];
     const card = document.createElement("article");
     card.className = "thesis-card";
+    if (assignment.side && assignment.piece) {
+      card.classList.add("assigned");
+    }
+    card.draggable = true;
+    card.dataset.id = assignment.id;
     card.innerHTML = `
       <div class="thesis-title">
-        <span>${text}</span>
-        <span>#${assignment.id}</span>
+        <span>${assignment.id}</span>
+        <span>${assignment.polarity === "positive" ? "+" : "-"}</span>
       </div>
-      <div class="thesis-controls">
-        <label>
-          Spieler
-          <select data-id="${assignment.id}" data-field="side">
-            <option value="white">Weiß</option>
-            <option value="black">Schwarz</option>
-          </select>
-        </label>
-        <label>
-          Figur
-          <select data-id="${assignment.id}" data-field="piece">
-            ${pieces.map((piece) => `<option value="${piece.id}">${piece.name}</option>`).join("")}
-          </select>
-        </label>
-        <label>
-          These
-          <select data-id="${assignment.id}" data-field="polarity">
-            <option value="positive">positiv</option>
-            <option value="negative">negativ</option>
-          </select>
-        </label>
-        <label>
-          Bonus
-          <select data-id="${assignment.id}" data-field="bonus">
-            <option value="0">kein Bonus</option>
-            <option value="1">+1</option>
-            <option value="2">+2</option>
-            <option value="3">+3</option>
-          </select>
-        </label>
+      <div class="thesis-controls" aria-label="${text} werten">
+        <button class="polarity-button ${assignment.polarity === "positive" ? "active" : ""}" data-id="${assignment.id}" data-polarity="positive" type="button">+</button>
+        <button class="polarity-button ${assignment.polarity === "negative" ? "active" : ""}" data-id="${assignment.id}" data-polarity="negative" type="button">-</button>
       </div>
     `;
 
+    card.addEventListener("dragstart", handleDragStart);
+    card.addEventListener("pointerdown", handlePointerDragStart);
     thesisList.appendChild(card);
-    card.querySelector('[data-field="side"]').value = assignment.side;
-    card.querySelector('[data-field="piece"]').value = assignment.piece;
-    card.querySelector('[data-field="polarity"]').value = assignment.polarity;
-    card.querySelector('[data-field="bonus"]').value = getBonusForAssignment(assignment);
   });
 }
 
-function getBonusForAssignment(assignment) {
-  return assignment.bonus || 0;
+function createResultSettings() {
+  resultsGrid.innerHTML = "";
+
+  ["white", "black"].forEach((side) => {
+    const group = document.createElement("section");
+    group.className = "result-group";
+    group.innerHTML = `
+      <h3>${side === "white" ? "Weiß" : "Schwarz"}</h3>
+      ${pieces
+        .map(
+          (piece) => `
+            <div class="result-row">
+              <label for="${side}-${piece.id}-result">${piece.name}</label>
+              <input id="${side}-${piece.id}-result" data-side="${side}" data-piece="${piece.id}" type="number" step="1" value="${state.results[side][piece.id]}" />
+            </div>
+          `,
+        )
+        .join("")}
+    `;
+    resultsGrid.appendChild(group);
+  });
+}
+
+function handleDragStart(event) {
+  const id = event.currentTarget.dataset.id;
+  event.dataTransfer.setData("text/plain", id);
+  event.dataTransfer.effectAllowed = "move";
+}
+
+function handleDragOver(event) {
+  event.preventDefault();
+  event.currentTarget.classList.add("drag-over");
+}
+
+function handleDragLeave(event) {
+  event.currentTarget.classList.remove("drag-over");
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  const id = Number(event.dataTransfer.getData("text/plain"));
+  const assignment = state.assignments.find((item) => item.id === id);
+  const cell = event.currentTarget;
+
+  cell.classList.remove("drag-over");
+  if (!assignment) return;
+
+  assignment.side = cell.dataset.side;
+  assignment.piece = cell.dataset.piece;
+  render();
+}
+
+function handlePointerDragStart(event) {
+  if (event.target.closest("button")) return;
+
+  const id = Number(event.currentTarget.dataset.id);
+  if (!id) return;
+
+  event.preventDefault();
+  pointerDrag = {
+    id,
+    ghost: document.createElement("div"),
+  };
+  pointerDrag.ghost.className = "drag-ghost";
+  pointerDrag.ghost.textContent = id;
+  document.body.appendChild(pointerDrag.ghost);
+
+  movePointerGhost(event.clientX, event.clientY);
+  window.addEventListener("pointermove", handlePointerDragMove);
+  window.addEventListener("pointerup", handlePointerDragEnd, { once: true });
+}
+
+function handlePointerDragMove(event) {
+  if (!pointerDrag) return;
+  movePointerGhost(event.clientX, event.clientY);
+
+  document.querySelectorAll(".drop-cell.drag-over").forEach((cell) => {
+    cell.classList.remove("drag-over");
+  });
+
+  const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".drop-cell");
+  if (target) {
+    target.classList.add("drag-over");
+  }
+}
+
+function handlePointerDragEnd(event) {
+  if (!pointerDrag) return;
+
+  const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".drop-cell");
+  const assignment = state.assignments.find((item) => item.id === pointerDrag.id);
+
+  if (target && assignment) {
+    assignment.side = target.dataset.side;
+    assignment.piece = target.dataset.piece;
+  }
+
+  pointerDrag.ghost.remove();
+  pointerDrag = null;
+  window.removeEventListener("pointermove", handlePointerDragMove);
+  document.querySelectorAll(".drop-cell.drag-over").forEach((cell) => {
+    cell.classList.remove("drag-over");
+  });
+  render();
+}
+
+function movePointerGhost(x, y) {
+  pointerDrag.ghost.style.left = `${x}px`;
+  pointerDrag.ghost.style.top = `${y}px`;
+}
+
+function getResultBonus(assignment) {
+  if (!assignment.side || !assignment.piece) return 0;
+  return Number(state.results[assignment.side][assignment.piece]) || 0;
 }
 
 function getBaseScore(assignment) {
+  if (!assignment.piece) return 0;
   const piece = pieces.find((item) => item.id === assignment.piece);
   const sign = assignment.polarity === "positive" ? 1 : -1;
 
@@ -146,7 +232,8 @@ function calculateTotals() {
   const totals = { white: 0, black: 0 };
 
   state.assignments.forEach((assignment) => {
-    totals[assignment.side] += getBaseScore(assignment) + getBonusForAssignment(assignment);
+    if (!assignment.side || !assignment.piece) return;
+    totals[assignment.side] += getBaseScore(assignment) + getResultBonus(assignment);
   });
 
   return totals;
@@ -158,13 +245,18 @@ function renderPlacements() {
   });
 
   state.assignments.forEach((assignment) => {
+    if (!assignment.side || !assignment.piece) return;
     const slot = document.querySelector(`[data-slot="${assignment.side}-${assignment.piece}"]`);
     if (!slot) return;
 
     const chip = document.createElement("span");
     chip.className = "placed-chip";
+    chip.draggable = true;
+    chip.dataset.id = assignment.id;
     chip.textContent = assignment.id;
-    chip.title = theses[assignment.id - 1];
+    chip.title = `${theses[assignment.id - 1]} ${assignment.polarity === "positive" ? "positiv" : "negativ"}`;
+    chip.addEventListener("dragstart", handleDragStart);
+    chip.addEventListener("pointerdown", handlePointerDragStart);
     slot.appendChild(chip);
   });
 }
@@ -188,25 +280,28 @@ function renderTotals() {
 }
 
 function render() {
+  createThesisList();
   renderPlacements();
   renderTotals();
 }
 
-thesisList.addEventListener("change", (event) => {
-  const select = event.target;
-  const id = Number(select.dataset.id);
-  const field = select.dataset.field;
-  const assignment = state.assignments.find((item) => item.id === id);
+thesisList.addEventListener("click", (event) => {
+  const button = event.target.closest(".polarity-button");
+  if (!button) return;
 
+  const assignment = state.assignments.find((item) => item.id === Number(button.dataset.id));
   if (!assignment) return;
 
-  if (field === "bonus") {
-    assignment.bonus = Number(select.value);
-  } else {
-    assignment[field] = select.value;
-  }
-
+  assignment.polarity = button.dataset.polarity;
   render();
+});
+
+resultsGrid.addEventListener("input", (event) => {
+  const input = event.target;
+  if (!input.matches("[data-side][data-piece]")) return;
+
+  state.results[input.dataset.side][input.dataset.piece] = Number(input.value);
+  renderTotals();
 });
 
 Object.values(nameInputs).forEach((input) => {
@@ -216,16 +311,16 @@ Object.values(nameInputs).forEach((input) => {
 resetButton.addEventListener("click", () => {
   state.assignments = theses.map((_, index) => ({
     id: index + 1,
-    side: index % 2 === 0 ? "white" : "black",
-    piece: pieces[index % pieces.length].id,
+    side: null,
+    piece: null,
     polarity: index % 3 === 0 ? "negative" : "positive",
-    bonus: [1, 2, 0, 1, 1, 0, 1, 2, 0, 1, 1, 0][index],
     knightSwing: Math.random() > 0.5 ? 1 : -1,
   }));
-  createThesisList();
+  state.results = structuredClone(initialBonuses);
+  createResultSettings();
   render();
 });
 
 createBoard();
-createThesisList();
+createResultSettings();
 render();
