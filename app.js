@@ -51,7 +51,8 @@ function createBoard() {
         if ((row === "top" && index % 2 === 1) || (row === "bottom" && index % 2 === 0)) {
           cell.classList.add("light");
         }
-        cell.textContent = piece.name;
+        cell.setAttribute("aria-label", piece.name);
+        cell.innerHTML = `<img class="piece-icon" src="assets/pieces/${piece.id}.png" alt="" />`;
       } else {
         cell.classList.add("drop-cell");
         cell.dataset.side = row;

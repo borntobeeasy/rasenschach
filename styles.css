@@ -179,7 +179,7 @@ select {
 
 .piece-cell {
   display: grid;
-  align-content: start;
+  place-items: center;
   background: var(--black);
   color: var(--white);
   font-weight: 800;
@@ -188,6 +188,17 @@ select {
 .piece-cell.light {
   background: var(--white);
   color: var(--ink);
+}
+
+.piece-icon {
+  width: 54%;
+  max-width: 72px;
+  height: auto;
+  display: block;
+}
+
+.piece-cell:not(.light) .piece-icon {
+  filter: invert(1);
 }
 
 .drop-cell {
