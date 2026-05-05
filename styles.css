@@ -364,6 +364,15 @@ select {
   touch-action: none;
 }
 
+.thesis-card .thesis-title {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  overflow-wrap: anywhere;
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  line-height: 1.15;
+}
+
 .thesis-card.unrated {
   color: var(--muted);
 }

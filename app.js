@@ -84,7 +84,7 @@ function createThesisList() {
     card.dataset.id = assignment.id;
     card.innerHTML = `
       <div class="thesis-title">
-        <span>${assignment.id}</span>
+        <span>${escapeHtml(theses[assignment.id - 1])}</span>
       </div>
     `;
 
@@ -102,10 +102,7 @@ function createEvaluationList() {
     card.className = "evaluation-card";
     card.innerHTML = `
       <strong>These ${assignment.id}</strong>
-      <label>
-        Text
-        <input data-id="${assignment.id}" data-field="thesis-text" value="${escapeAttribute(theses[assignment.id - 1])}" />
-      </label>
+      <input aria-label="These ${assignment.id} Titel" data-id="${assignment.id}" data-field="thesis-text" value="${escapeAttribute(theses[assignment.id - 1])}" />
       <div class="evaluation-controls" aria-label="These ${assignment.id} auswerten">
         <button class="neutral-button ${!assignment.polarity ? "active" : ""}" data-id="${assignment.id}" data-polarity="" type="button">unausgewertet</button>
         <button class="polarity-button ${assignment.polarity === "positive" ? "active" : ""}" data-id="${assignment.id}" data-polarity="positive" type="button">+</button>
@@ -149,6 +146,13 @@ function escapeAttribute(value) {
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 }
@@ -336,6 +340,7 @@ evaluationList.addEventListener("input", (event) => {
   if (!input.matches('[data-field="thesis-text"]')) return;
 
   theses[Number(input.dataset.id) - 1] = input.value;
+  createThesisList();
   renderPlacements();
 });
 
