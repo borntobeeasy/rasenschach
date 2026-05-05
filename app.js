@@ -74,7 +74,7 @@ function createBoard() {
 function createThesisList() {
   thesisList.innerHTML = "";
 
-  theses.forEach((text, index) => {
+  theses.forEach((_, index) => {
     const assignment = state.assignments[index];
     if (assignment.side && assignment.piece) return;
 
@@ -198,7 +198,7 @@ function handlePointerDragStart(event) {
     ghost: document.createElement("div"),
   };
   pointerDrag.ghost.className = "drag-ghost";
-  pointerDrag.ghost.textContent = id;
+  pointerDrag.ghost.textContent = theses[id - 1];
   document.body.appendChild(pointerDrag.ghost);
 
   movePointerGhost(event.clientX, event.clientY);
@@ -291,7 +291,7 @@ function renderPlacements() {
     chip.className = "placed-chip";
     chip.draggable = true;
     chip.dataset.id = assignment.id;
-    chip.textContent = assignment.id;
+    chip.textContent = theses[assignment.id - 1];
     chip.title = `${theses[assignment.id - 1]} ${getPolarityLabel(assignment)}`;
     chip.addEventListener("dragstart", handleDragStart);
     chip.addEventListener("pointerdown", handlePointerDragStart);

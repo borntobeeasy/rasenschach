@@ -234,8 +234,8 @@ select {
 
 .placed-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-auto-rows: minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(24px, auto);
   gap: 4px;
   min-height: 0;
 }
@@ -246,14 +246,17 @@ select {
   justify-content: center;
   width: 100%;
   min-width: 0;
-  min-height: 0;
-  aspect-ratio: 1;
+  min-height: 24px;
   border: 1px solid var(--ink);
   background: var(--white);
   color: var(--ink);
   cursor: grab;
-  font-size: clamp(0.68rem, 1.15vw, 0.86rem);
+  font-size: clamp(0.52rem, 0.74vw, 0.7rem);
   font-weight: 800;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  padding: 2px;
+  text-align: center;
 }
 
 .drag-ghost {
@@ -261,12 +264,15 @@ select {
   z-index: 50;
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
+  width: 128px;
+  min-height: 42px;
   border: 2px solid var(--ink);
   background: var(--white);
   color: var(--ink);
   font-weight: 900;
+  overflow-wrap: anywhere;
+  padding: 6px;
+  text-align: center;
   pointer-events: none;
   transform: translate(-50%, -50%);
 }
