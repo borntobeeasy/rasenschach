@@ -7,18 +7,18 @@ const pieces = [
 ];
 
 const theses = [
-  "Ballbesitz schafft Kontrolle.",
-  "Hohe Laufleistung entscheidet enge Spiele.",
-  "Tore zählen stärker als jeder Stil.",
-  "Pressing nach Ballverlust ist Pflicht.",
-  "Der beste Spieler muss zentral stehen.",
-  "Flügelspiel öffnet den Strafraum.",
-  "Ein frühes Gegentor kippt das System.",
-  "Standards sind planbarer als Konter.",
-  "Mutige Wechsel bringen Momentum.",
-  "Der Torwart ist der erste Spielmacher.",
-  "Zweikämpfe sind wichtiger als Pässe.",
-  "Das Team mit mehr Paarungen dominiert.",
+  "These 1",
+  "These 2",
+  "These 3",
+  "These 4",
+  "These 5",
+  "These 6",
+  "These 7",
+  "These 8",
+  "These 9",
+  "These 10",
+  "These 11",
+  "These 12",
 ];
 
 const state = {
@@ -163,7 +163,7 @@ function renderPlacements() {
 
     const chip = document.createElement("span");
     chip.className = "placed-chip";
-    chip.textContent = `${assignment.polarity === "positive" ? "+" : "-"}${assignment.id}`;
+    chip.textContent = assignment.id;
     chip.title = theses[assignment.id - 1];
     slot.appendChild(chip);
   });
