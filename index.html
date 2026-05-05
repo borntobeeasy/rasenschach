@@ -77,13 +77,13 @@
     </main>
 
     <dialog class="settings-dialog" id="settingsDialog" aria-label="Auswertung eintragen">
-      <form method="dialog" class="settings-shell">
+      <div class="settings-shell">
         <header class="settings-head">
           <div>
             <p class="eyebrow">Auswertung</p>
             <h2>Eintragen</h2>
           </div>
-          <button class="close-button" type="submit" aria-label="Popup schließen">×</button>
+          <button class="close-button" id="closeSettingsButton" type="button" aria-label="Popup schließen">×</button>
         </header>
 
         <section class="results-panel" aria-label="Thesen auswerten">
@@ -101,7 +101,7 @@
           </div>
           <div class="results-grid" id="resultsGrid"></div>
         </section>
-      </form>
+      </div>
     </dialog>
 
     <script src="app.js"></script>

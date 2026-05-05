@@ -30,6 +30,7 @@ const evaluationList = document.querySelector("#evaluationList");
 const resultsGrid = document.querySelector("#resultsGrid");
 const resetButton = document.querySelector("#resetButton");
 const openSettingsButton = document.querySelector("#openSettingsButton");
+const closeSettingsButton = document.querySelector("#closeSettingsButton");
 const settingsDialog = document.querySelector("#settingsDialog");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
@@ -75,22 +76,16 @@ function createThesisList() {
 
   theses.forEach((text, index) => {
     const assignment = state.assignments[index];
+    if (assignment.side && assignment.piece) return;
+
     const card = document.createElement("article");
     card.className = "thesis-card";
-    if (assignment.side && assignment.piece) {
-      card.classList.add("assigned");
-    }
-    if (!assignment.polarity) {
-      card.classList.add("unrated");
-    }
     card.draggable = true;
     card.dataset.id = assignment.id;
     card.innerHTML = `
       <div class="thesis-title">
         <span>${assignment.id}</span>
-        <span>${getPolarityLabel(assignment)}</span>
       </div>
-      <span class="thesis-status">${assignment.side ? "abgelegt" : "offen"}</span>
     `;
 
     card.addEventListener("dragstart", handleDragStart);
@@ -107,8 +102,12 @@ function createEvaluationList() {
     card.className = "evaluation-card";
     card.innerHTML = `
       <strong>These ${assignment.id}</strong>
+      <label>
+        Text
+        <input data-id="${assignment.id}" data-field="thesis-text" value="${escapeAttribute(theses[assignment.id - 1])}" />
+      </label>
       <div class="evaluation-controls" aria-label="These ${assignment.id} auswerten">
-        <button class="neutral-button ${!assignment.polarity ? "active" : ""}" data-id="${assignment.id}" data-polarity="" type="button">neutral</button>
+        <button class="neutral-button ${!assignment.polarity ? "active" : ""}" data-id="${assignment.id}" data-polarity="" type="button">unausgewertet</button>
         <button class="polarity-button ${assignment.polarity === "positive" ? "active" : ""}" data-id="${assignment.id}" data-polarity="positive" type="button">+</button>
         <button class="polarity-button ${assignment.polarity === "negative" ? "active" : ""}" data-id="${assignment.id}" data-polarity="negative" type="button">-</button>
       </div>
@@ -143,7 +142,15 @@ function createResultSettings() {
 function getPolarityLabel(assignment) {
   if (assignment.polarity === "positive") return "+";
   if (assignment.polarity === "negative") return "-";
-  return "neutral";
+  return "unausgewertet";
+}
+
+function escapeAttribute(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
 
 function handleDragStart(event) {
@@ -324,6 +331,14 @@ evaluationList.addEventListener("click", (event) => {
   render();
 });
 
+evaluationList.addEventListener("input", (event) => {
+  const input = event.target;
+  if (!input.matches('[data-field="thesis-text"]')) return;
+
+  theses[Number(input.dataset.id) - 1] = input.value;
+  renderPlacements();
+});
+
 resultsGrid.addEventListener("input", (event) => {
   const input = event.target;
   if (!input.matches("[data-side][data-piece]")) return;
@@ -337,7 +352,21 @@ Object.values(nameInputs).forEach((input) => {
 });
 
 openSettingsButton.addEventListener("click", () => {
-  settingsDialog.showModal();
+  if (typeof settingsDialog.showModal === "function") {
+    settingsDialog.showModal();
+  } else {
+    settingsDialog.setAttribute("open", "");
+    settingsDialog.classList.add("is-open");
+  }
+});
+
+closeSettingsButton.addEventListener("click", () => {
+  if (typeof settingsDialog.close === "function") {
+    settingsDialog.close();
+  } else {
+    settingsDialog.removeAttribute("open");
+    settingsDialog.classList.remove("is-open");
+  }
 });
 
 resetButton.addEventListener("click", () => {
