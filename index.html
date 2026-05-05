@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rasenschach</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="board-panel" aria-label="Rasenschach Spielfeld">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Draftboard</p>
+            <h1>Rasenschach</h1>
+          </div>
+          <div class="match-controls">
+            <label>
+              Weiß
+              <input id="whiteName" value="Spieler A" />
+            </label>
+            <label>
+              Schwarz
+              <input id="blackName" value="Spieler B" />
+            </label>
+          </div>
+        </header>
+
+        <div class="game-layout">
+          <section class="scoreboard" aria-label="Spielstand">
+            <div class="score-card white">
+              <span id="whiteLabel">Spieler A</span>
+              <strong id="whiteTotal">0</strong>
+            </div>
+            <div class="score-card black">
+              <span id="blackLabel">Spieler B</span>
+              <strong id="blackTotal">0</strong>
+            </div>
+          </section>
+
+          <section class="field-wrap">
+            <div class="side-note top">Felder zum Spieler aufstellen</div>
+            <div class="side-note middle">Felder zum Thesen einordnen</div>
+            <div class="side-note bottom">Felder zum Spieler anfüllen</div>
+            <div class="chess-grid" id="pieceGrid" aria-label="Figuren und Thesenfelder"></div>
+          </section>
+
+          <section class="thesis-panel" aria-label="Thesen einordnen">
+            <div class="thesis-head">
+              <div>
+                <p class="eyebrow">Thesenraum</p>
+                <h2>12 Thesen einordnen</h2>
+              </div>
+              <button id="resetButton" type="button">Zurücksetzen</button>
+            </div>
+            <div class="thesis-list" id="thesisList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="rules-panel" aria-label="Spielregeln">
+        <div>
+          <p class="eyebrow">Regeln</p>
+          <h2>So wird gespielt</h2>
+        </div>
+        <ol>
+          <li>Es gibt 12 externe Thesen. Jede These muss entweder positiv oder negativ eingeordnet werden.</li>
+          <li>Im Mock-Draft wählen die Spieler abwechselnd Schwarz oder Weiß; danach werden die Thesen auf die Felder verteilt.</li>
+          <li>Die fünf Felder sind -/+3, -1, ?, +1 und +/-3. Eine positive These gibt Pluspunkte, eine negative These Minuspunkte. Das Fragezeichen-Feld wechselt zufällig zwischen +1 und -1.</li>
+          <li>Die Felder orientieren sich an Schachfiguren: Turm, Läufer, Springer, Dame und König. Ihre Sonderfunktionen liefern Bonuspunkte.</li>
+          <li>Alle Punkte werden zusammengezählt und unten als Vergleich zwischen Weiß und Schwarz grafisch dargestellt.</li>
+        </ol>
+        <div class="legend">
+          <div><strong>Turm</strong><span>+1 für Vorwärtsdrang und +1 bei den meisten Paarungen.</span></div>
+          <div><strong>Läufer</strong><span>+1 Team, +2 Spiel, +3 Spieltag für die höchste Laufleistung.</span></div>
+          <div><strong>Springer</strong><span>Springt je nach Kategorie; bei aktivem Bonus +2.</span></div>
+          <div><strong>Dame</strong><span>+1 pro Score.</span></div>
+          <div><strong>König</strong><span>+1 pro Tor.</span></div>
+        </div>
+      </section>
+
+      <section class="comparison" aria-label="Punktevergleich">
+        <div class="bar-row">
+          <span id="whiteBarLabel">Spieler A</span>
+          <div class="bar-track"><div class="bar white-bar" id="whiteBar"></div></div>
+          <strong id="whiteBarValue">0</strong>
+        </div>
+        <div class="bar-row">
+          <span id="blackBarLabel">Spieler B</span>
+          <div class="bar-track"><div class="bar black-bar" id="blackBar"></div></div>
+          <strong id="blackBarValue">0</strong>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
