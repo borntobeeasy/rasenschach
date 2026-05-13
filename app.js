@@ -22,6 +22,7 @@ const state = {
     knightSwing: Math.random() > 0.5 ? 1 : -1,
   })),
   results: structuredClone(initialBonuses),
+  figureImages: loadFigureImages(),
 };
 
 const pieceGrid = document.querySelector("#pieceGrid");
@@ -48,11 +49,15 @@ function createBoard() {
 
       if (row === "top" || row === "bottom") {
         cell.classList.add("piece-cell");
+        cell.dataset.figureSlot = `${row}-${piece.id}`;
         if ((row === "top" && index % 2 === 1) || (row === "bottom" && index % 2 === 0)) {
           cell.classList.add("light");
         }
         cell.setAttribute("aria-label", piece.name);
-        cell.innerHTML = `<img class="piece-svg" src="assets/pieces/${piece.id}.svg" alt="" />`;
+        renderFigureCell(cell, piece);
+        cell.addEventListener("dragover", handleFigureDragOver);
+        cell.addEventListener("dragleave", handleFigureDragLeave);
+        cell.addEventListener("drop", handleFigureDrop);
       } else {
         cell.classList.add("drop-cell");
         cell.dataset.side = row;
@@ -69,6 +74,77 @@ function createBoard() {
       pieceGrid.appendChild(cell);
     });
   });
+}
+
+function renderFigureCell(cell, piece) {
+  const image = state.figureImages[cell.dataset.figureSlot];
+  if (image) {
+    cell.classList.add("has-player-image");
+    cell.innerHTML = `
+      <img class="player-photo" src="${image}" alt="" />
+      <button class="remove-player-photo" type="button" aria-label="Bild entfernen">×</button>
+    `;
+    cell.querySelector(".remove-player-photo").addEventListener("click", (event) => {
+      event.stopPropagation();
+      delete state.figureImages[cell.dataset.figureSlot];
+      saveFigureImages();
+      renderFigureCell(cell, piece);
+    });
+    return;
+  }
+
+  cell.classList.remove("has-player-image");
+  cell.innerHTML = `<img class="piece-svg" src="assets/pieces/${piece.id}.svg" alt="" />`;
+}
+
+function handleFigureDragOver(event) {
+  if (!hasImageFile(event.dataTransfer)) return;
+
+  event.preventDefault();
+  event.currentTarget.classList.add("image-drop-over");
+}
+
+function handleFigureDragLeave(event) {
+  event.currentTarget.classList.remove("image-drop-over");
+}
+
+function handleFigureDrop(event) {
+  if (!hasImageFile(event.dataTransfer)) return;
+
+  event.preventDefault();
+  const cell = event.currentTarget;
+  const file = [...event.dataTransfer.files].find((item) => item.type.startsWith("image/"));
+  cell.classList.remove("image-drop-over");
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    state.figureImages[cell.dataset.figureSlot] = reader.result;
+    saveFigureImages();
+    const piece = pieces.find((item) => cell.dataset.figureSlot.endsWith(item.id));
+    renderFigureCell(cell, piece);
+  });
+  reader.readAsDataURL(file);
+}
+
+function hasImageFile(dataTransfer) {
+  return [...(dataTransfer?.items || [])].some((item) => item.kind === "file" && item.type.startsWith("image/"));
+}
+
+function loadFigureImages() {
+  try {
+    return JSON.parse(localStorage.getItem("rasenschach.figureImages")) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveFigureImages() {
+  try {
+    localStorage.setItem("rasenschach.figureImages", JSON.stringify(state.figureImages));
+  } catch {
+    // Large local images can exceed browser storage; the current board still keeps them in memory.
+  }
 }
 
 function createThesisList() {
