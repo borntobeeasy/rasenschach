@@ -12,6 +12,7 @@
   --green: #12745c;
   --red: #b53232;
   --cell-size: clamp(92px, 8.5vw, 132px);
+  --shadow: 0 18px 45px rgba(25, 22, 17, 0.08);
 }
 
 * {
@@ -32,7 +33,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -43,13 +45,16 @@ select {
 }
 
 .board-panel,
-.comparison {
-  background: rgba(255, 254, 250, 0.82);
+.comparison,
+.notes-panel {
+  background: rgba(255, 254, 250, 0.9);
   border: 1px solid var(--line);
+  box-shadow: var(--shadow);
 }
 
 .board-panel {
   padding: 20px;
+  border-radius: 8px;
 }
 
 .topbar,
@@ -102,13 +107,19 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   min-height: 38px;
   border: 1px solid var(--line);
-  border-radius: 0;
+  border-radius: 6px;
   background: var(--white);
   color: var(--ink);
   padding: 8px 10px;
+}
+
+textarea {
+  min-height: 96px;
+  resize: vertical;
 }
 
 .game-layout {
@@ -166,6 +177,7 @@ select {
   border: 4px solid var(--yellow);
   outline: 2px solid var(--ink);
   background: var(--white);
+  box-shadow: var(--shadow);
 }
 
 .grid-cell {
@@ -190,15 +202,13 @@ select {
   color: var(--ink);
 }
 
-.piece-icon {
-  width: 54%;
-  max-width: 72px;
-  height: auto;
+.piece-symbol {
   display: block;
-}
-
-.piece-cell:not(.light) .piece-icon {
-  filter: invert(1);
+  color: currentColor;
+  font-family: "Segoe UI Symbol", "DejaVu Sans", "Noto Sans Symbols", serif;
+  font-size: clamp(3.2rem, 5.2vw, 5.25rem);
+  line-height: 1;
+  transform: translateY(-2px);
 }
 
 .drop-cell {
@@ -288,9 +298,10 @@ select {
 
 .thesis-panel {
   min-height: 528px;
-  border: 2px dashed var(--ink);
+  border: 2px dashed rgba(27, 27, 27, 0.8);
+  border-radius: 8px;
   padding: 16px;
-  background: rgba(255, 254, 250, 0.62);
+  background: rgba(255, 254, 250, 0.74);
 }
 
 .action-buttons {
@@ -305,6 +316,7 @@ select {
 .close-button {
   min-height: 38px;
   border: 1px solid var(--ink);
+  border-radius: 6px;
   background: var(--ink);
   color: var(--white);
   padding: 8px 12px;
@@ -338,12 +350,23 @@ select {
   place-items: center;
   min-height: 68px;
   border: 1px solid var(--line);
+  border-radius: 6px;
   background: var(--white);
   padding: 8px;
   cursor: grab;
   font-weight: 900;
   user-select: none;
   touch-action: none;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.thesis-card:hover {
+  border-color: var(--ink);
+  box-shadow: 0 8px 20px rgba(25, 22, 17, 0.08);
+  transform: translateY(-1px);
 }
 
 .thesis-card .thesis-title {
@@ -415,6 +438,7 @@ select {
   width: min(980px, calc(100% - 28px));
   max-height: min(760px, calc(100vh - 28px));
   border: 2px solid var(--ink);
+  border-radius: 8px;
   background:
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px),
@@ -457,6 +481,7 @@ select {
   display: grid;
   gap: 8px;
   border: 1px solid var(--line);
+  border-radius: 6px;
   background: var(--white);
   padding: 10px;
 }
@@ -479,6 +504,7 @@ select {
   display: grid;
   gap: 8px;
   border: 1px solid var(--line);
+  border-radius: 6px;
   background: var(--white);
   padding: 10px;
 }
@@ -509,6 +535,12 @@ select {
   gap: 14px;
   margin-top: 18px;
   padding: 18px 20px;
+}
+
+.notes-panel {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border-radius: 8px;
 }
 
 .bar-row {
