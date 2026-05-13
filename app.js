@@ -49,6 +49,7 @@ const matchChart = document.querySelector("#matchChart");
 const addMatchButton = document.querySelector("#addMatchButton");
 const saveMatchdayButton = document.querySelector("#saveMatchdayButton");
 const matchdayStatus = document.querySelector("#matchdayStatus");
+const matchdayNumberInput = document.querySelector("#matchdayNumberInput");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
@@ -216,15 +217,23 @@ function saveFigureImages() {
 
 function loadMatchday() {
   try {
+    const saved = JSON.parse(localStorage.getItem("rasenschach.matchday"));
+    if (Array.isArray(saved)) {
+      return { number: 1, matches: saved };
+    }
+
     return (
-      JSON.parse(localStorage.getItem("rasenschach.matchday")) || [
+      saved || {
+        number: 1,
+        matches: [
         { home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 },
         { home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 },
         { home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 },
-      ]
+        ],
+      }
     );
   } catch {
-    return [{ home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 }];
+    return { number: 1, matches: [{ home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 }] };
   }
 }
 
@@ -625,38 +634,63 @@ function render() {
 }
 
 function renderMatchday() {
+  matchdayNumberInput.value = state.matchday.number ?? 1;
   matchList.innerHTML = "";
-  matchChart.innerHTML = "";
 
-  state.matchday.forEach((match, index) => {
+  state.matchday.matches.forEach((match, index) => {
     const row = document.createElement("article");
     row.className = "match-row";
     row.innerHTML = `
       <input data-match="${index}" data-field="home" value="${escapeAttribute(match.home)}" aria-label="Heimteam ${index + 1}" />
-      <input data-match="${index}" data-field="homeGoals" type="number" min="0" value="${Number(match.homeGoals) || 0}" aria-label="Heimtore ${index + 1}" />
+      <input data-match="${index}" data-field="homeGoals" type="number" step="1" value="${Number(match.homeGoals) || 0}" aria-label="Heimpunkte ${index + 1}" />
       <span>:</span>
-      <input data-match="${index}" data-field="awayGoals" type="number" min="0" value="${Number(match.awayGoals) || 0}" aria-label="Auswärtstore ${index + 1}" />
+      <input data-match="${index}" data-field="awayGoals" type="number" step="1" value="${Number(match.awayGoals) || 0}" aria-label="Auswärtspunkte ${index + 1}" />
       <input data-match="${index}" data-field="away" value="${escapeAttribute(match.away)}" aria-label="Auswärtsteam ${index + 1}" />
       <button data-remove-match="${index}" type="button" aria-label="Spiel entfernen">×</button>
     `;
     matchList.appendChild(row);
+  });
 
+  renderMatchChart();
+}
+
+function renderMatchChart() {
+  matchChart.innerHTML = "";
+
+  state.matchday.matches.forEach((match) => {
     const homeGoals = Number(match.homeGoals) || 0;
     const awayGoals = Number(match.awayGoals) || 0;
-    const total = Math.max(homeGoals + awayGoals, 1);
+    const maxAbs = Math.max(Math.abs(homeGoals), Math.abs(awayGoals), 1);
     const chart = document.createElement("article");
     chart.className = "chart-row";
     chart.innerHTML = `
       <div class="chart-label">
         <strong>${escapeHtml(match.home)} ${homeGoals}:${awayGoals} ${escapeHtml(match.away)}</strong>
       </div>
-      <div class="chart-track">
-        <div class="chart-home" style="width:${(homeGoals / total) * 100}%"></div>
-        <div class="chart-away" style="width:${(awayGoals / total) * 100}%"></div>
+      <div class="signed-bars">
+        ${renderSignedBar(match.home, homeGoals, maxAbs, "home")}
+        ${renderSignedBar(match.away, awayGoals, maxAbs, "away")}
       </div>
     `;
     matchChart.appendChild(chart);
   });
+}
+
+function renderSignedBar(label, value, maxAbs, type) {
+  const magnitude = Math.min(50, (Math.abs(value) / maxAbs) * 50);
+  const sideClass = value < 0 ? "negative" : "positive";
+  const style = value < 0 ? `left:${50 - magnitude}%;width:${magnitude}%` : `left:50%;width:${magnitude}%`;
+
+  return `
+    <div class="signed-bar-row">
+      <span>${escapeHtml(label)}</span>
+      <div class="signed-track">
+        <i class="zero-line"></i>
+        <b class="signed-bar ${type} ${sideClass}" style="${style}"></b>
+      </div>
+      <strong>${getSignedNumber(value)}</strong>
+    </div>
+  `;
 }
 
 function renderRandomizerState() {
@@ -747,24 +781,28 @@ matchList.addEventListener("input", (event) => {
   const field = input.dataset.field;
   if (!Number.isInteger(index) || !field) return;
 
-  state.matchday[index][field] = field.endsWith("Goals") ? Number(input.value) : input.value;
-  renderMatchday();
+  state.matchday.matches[index][field] = field.endsWith("Goals") ? Number(input.value) : input.value;
+  renderMatchChart();
 });
 
 matchList.addEventListener("click", (event) => {
   const button = event.target.closest("[data-remove-match]");
   if (!button) return;
 
-  state.matchday.splice(Number(button.dataset.removeMatch), 1);
+  state.matchday.matches.splice(Number(button.dataset.removeMatch), 1);
   renderMatchday();
 });
 
 addMatchButton.addEventListener("click", () => {
-  state.matchday.push({ home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 });
+  state.matchday.matches.push({ home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 });
   renderMatchday();
 });
 
 saveMatchdayButton.addEventListener("click", saveMatchday);
+
+matchdayNumberInput.addEventListener("input", () => {
+  state.matchday.number = Number(matchdayNumberInput.value) || 1;
+});
 
 createBoard();
 createResultSettings();
