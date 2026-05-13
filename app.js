@@ -58,6 +58,7 @@ function createBoard() {
         cell.addEventListener("dragover", handleFigureDragOver);
         cell.addEventListener("dragleave", handleFigureDragLeave);
         cell.addEventListener("drop", handleFigureDrop);
+        cell.addEventListener("dblclick", handleFigurePick);
       } else {
         cell.classList.add("drop-cell");
         cell.dataset.side = row;
@@ -97,10 +98,23 @@ function renderFigureCell(cell, piece) {
   cell.innerHTML = `<img class="piece-svg" src="assets/pieces/${piece.id}.svg" alt="" />`;
 }
 
-function handleFigureDragOver(event) {
-  if (!hasImageFile(event.dataTransfer)) return;
+function handleFigurePick(event) {
+  const cell = event.currentTarget;
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.addEventListener("change", () => {
+    const file = input.files?.[0];
+    if (file) {
+      readPlayerImageFile(file, cell);
+    }
+  });
+  input.click();
+}
 
+function handleFigureDragOver(event) {
   event.preventDefault();
+  event.dataTransfer.dropEffect = "copy";
   event.currentTarget.classList.add("image-drop-over");
 }
 
@@ -109,12 +123,26 @@ function handleFigureDragLeave(event) {
 }
 
 function handleFigureDrop(event) {
-  if (!hasImageFile(event.dataTransfer)) return;
-
   event.preventDefault();
   const cell = event.currentTarget;
-  const file = [...event.dataTransfer.files].find((item) => item.type.startsWith("image/"));
   cell.classList.remove("image-drop-over");
+
+  const file = [...event.dataTransfer.files].find((item) => item.type.startsWith("image/"));
+  if (file) {
+    readPlayerImageFile(file, cell);
+    return;
+  }
+
+  const url = getDroppedImageUrl(event.dataTransfer);
+  if (url) {
+    state.figureImages[cell.dataset.figureSlot] = url;
+    saveFigureImages();
+    const piece = pieces.find((item) => cell.dataset.figureSlot.endsWith(item.id));
+    renderFigureCell(cell, piece);
+  }
+}
+
+function readPlayerImageFile(file, cell) {
   if (!file) return;
 
   const reader = new FileReader();
@@ -127,8 +155,22 @@ function handleFigureDrop(event) {
   reader.readAsDataURL(file);
 }
 
-function hasImageFile(dataTransfer) {
-  return [...(dataTransfer?.items || [])].some((item) => item.kind === "file" && item.type.startsWith("image/"));
+function getDroppedImageUrl(dataTransfer) {
+  const uri = dataTransfer.getData("text/uri-list")?.split("\n").find((line) => line && !line.startsWith("#"));
+  if (uri && isImageLikeUrl(uri)) return uri;
+
+  const plainText = dataTransfer.getData("text/plain");
+  if (plainText && isImageLikeUrl(plainText.trim())) return plainText.trim();
+
+  const html = dataTransfer.getData("text/html");
+  if (!html) return "";
+
+  const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match?.[1] || "";
+}
+
+function isImageLikeUrl(value) {
+  return /^(https?:|data:image\/|blob:|file:)/i.test(value);
 }
 
 function loadFigureImages() {
