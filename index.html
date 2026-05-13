@@ -54,17 +54,22 @@
         </div>
       </section>
 
-      <section class="comparison" aria-label="Punktevergleich">
-        <div class="bar-row">
-          <span id="whiteBarLabel">Spieler A</span>
-          <div class="bar-track"><div class="bar white-bar" id="whiteBar"></div></div>
-          <strong id="whiteBarValue">0</strong>
+      <section class="matchday-panel" aria-label="Spieltags Ergebnisse">
+        <header class="matchday-head">
+          <div>
+            <p class="eyebrow">Spieltag</p>
+            <h2>Ergebnisse eintragen</h2>
+          </div>
+          <div class="action-buttons">
+            <button id="addMatchButton" type="button">Spiel hinzufügen</button>
+            <button id="saveMatchdayButton" type="button">Spieltag speichern</button>
+          </div>
+        </header>
+        <div class="matchday-layout">
+          <div class="match-list" id="matchList"></div>
+          <div class="match-chart" id="matchChart" aria-label="Grafische Ergebnisdarstellung"></div>
         </div>
-        <div class="bar-row">
-          <span id="blackBarLabel">Spieler B</span>
-          <div class="bar-track"><div class="bar black-bar" id="blackBar"></div></div>
-          <strong id="blackBarValue">0</strong>
-        </div>
+        <p class="storage-status" id="matchdayStatus" aria-live="polite"></p>
       </section>
     </main>
 

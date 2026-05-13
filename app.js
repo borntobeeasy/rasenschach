@@ -27,6 +27,7 @@ const state = {
   questionValue: null,
   knightCategories: [...initialKnightCategories],
   selectedKnightCategory: "",
+  matchday: loadMatchday(),
 };
 
 const pieceGrid = document.querySelector("#pieceGrid");
@@ -43,6 +44,11 @@ const randomKnightButton = document.querySelector("#randomKnightButton");
 const knightCategoryLabel = document.querySelector("#knightCategoryLabel");
 const storageGrid = document.querySelector("#storageGrid");
 const storageStatus = document.querySelector("#storageStatus");
+const matchList = document.querySelector("#matchList");
+const matchChart = document.querySelector("#matchChart");
+const addMatchButton = document.querySelector("#addMatchButton");
+const saveMatchdayButton = document.querySelector("#saveMatchdayButton");
+const matchdayStatus = document.querySelector("#matchdayStatus");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
@@ -206,6 +212,25 @@ function saveFigureImages() {
   } catch {
     // Large local images can exceed browser storage; the current board still keeps them in memory.
   }
+}
+
+function loadMatchday() {
+  try {
+    return (
+      JSON.parse(localStorage.getItem("rasenschach.matchday")) || [
+        { home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 },
+        { home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 },
+        { home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 },
+      ]
+    );
+  } catch {
+    return [{ home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 }];
+  }
+}
+
+function saveMatchday() {
+  localStorage.setItem("rasenschach.matchday", JSON.stringify(state.matchday));
+  matchdayStatus.textContent = "Spieltag gespeichert.";
 }
 
 function getStorageKey(section) {
@@ -578,19 +603,13 @@ function fitTextToContainer(text) {
 
 function renderTotals() {
   const totals = calculateTotals();
-  const max = Math.max(Math.abs(totals.white), Math.abs(totals.black), 1);
 
   document.querySelector("#whiteTotal").textContent = totals.white;
   document.querySelector("#blackTotal").textContent = totals.black;
-  document.querySelector("#whiteBarValue").textContent = totals.white;
-  document.querySelector("#blackBarValue").textContent = totals.black;
-  document.querySelector("#whiteBar").style.width = `${Math.min(100, (Math.abs(totals.white) / max) * 100)}%`;
-  document.querySelector("#blackBar").style.width = `${Math.min(100, (Math.abs(totals.black) / max) * 100)}%`;
 
   ["white", "black"].forEach((side) => {
     const label = nameInputs[side].value.trim() || (side === "white" ? "Weiß" : "Schwarz");
     document.querySelector(`#${side}Label`).textContent = label;
-    document.querySelector(`#${side}BarLabel`).textContent = label;
   });
 }
 
@@ -601,7 +620,43 @@ function render() {
   renderPlacements();
   renderTotals();
   renderRandomizerState();
+  renderMatchday();
   fitAllCardText();
+}
+
+function renderMatchday() {
+  matchList.innerHTML = "";
+  matchChart.innerHTML = "";
+
+  state.matchday.forEach((match, index) => {
+    const row = document.createElement("article");
+    row.className = "match-row";
+    row.innerHTML = `
+      <input data-match="${index}" data-field="home" value="${escapeAttribute(match.home)}" aria-label="Heimteam ${index + 1}" />
+      <input data-match="${index}" data-field="homeGoals" type="number" min="0" value="${Number(match.homeGoals) || 0}" aria-label="Heimtore ${index + 1}" />
+      <span>:</span>
+      <input data-match="${index}" data-field="awayGoals" type="number" min="0" value="${Number(match.awayGoals) || 0}" aria-label="Auswärtstore ${index + 1}" />
+      <input data-match="${index}" data-field="away" value="${escapeAttribute(match.away)}" aria-label="Auswärtsteam ${index + 1}" />
+      <button data-remove-match="${index}" type="button" aria-label="Spiel entfernen">×</button>
+    `;
+    matchList.appendChild(row);
+
+    const homeGoals = Number(match.homeGoals) || 0;
+    const awayGoals = Number(match.awayGoals) || 0;
+    const total = Math.max(homeGoals + awayGoals, 1);
+    const chart = document.createElement("article");
+    chart.className = "chart-row";
+    chart.innerHTML = `
+      <div class="chart-label">
+        <strong>${escapeHtml(match.home)} ${homeGoals}:${awayGoals} ${escapeHtml(match.away)}</strong>
+      </div>
+      <div class="chart-track">
+        <div class="chart-home" style="width:${(homeGoals / total) * 100}%"></div>
+        <div class="chart-away" style="width:${(awayGoals / total) * 100}%"></div>
+      </div>
+    `;
+    matchChart.appendChild(chart);
+  });
 }
 
 function renderRandomizerState() {
@@ -686,9 +741,35 @@ storageGrid.addEventListener("click", (event) => {
   if (action === "clear") clearSection(section);
 });
 
+matchList.addEventListener("input", (event) => {
+  const input = event.target;
+  const index = Number(input.dataset.match);
+  const field = input.dataset.field;
+  if (!Number.isInteger(index) || !field) return;
+
+  state.matchday[index][field] = field.endsWith("Goals") ? Number(input.value) : input.value;
+  renderMatchday();
+});
+
+matchList.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-remove-match]");
+  if (!button) return;
+
+  state.matchday.splice(Number(button.dataset.removeMatch), 1);
+  renderMatchday();
+});
+
+addMatchButton.addEventListener("click", () => {
+  state.matchday.push({ home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 });
+  renderMatchday();
+});
+
+saveMatchdayButton.addEventListener("click", saveMatchday);
+
 createBoard();
 createResultSettings();
 renderRandomizerState();
+renderMatchday();
 render();
 
 randomQuestionButton.addEventListener("click", () => {
