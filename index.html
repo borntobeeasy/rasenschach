@@ -122,6 +122,61 @@
             </article>
           </div>
         </section>
+
+        <section class="results-panel" aria-label="Speichern">
+          <div>
+            <p class="eyebrow">Speicher</p>
+            <h2>Bereiche separat sichern</h2>
+          </div>
+          <div class="storage-grid" id="storageGrid">
+            <article class="storage-card" data-storage-section="theses">
+              <strong>Thesen</strong>
+              <span>Texte und +/- Auswertung</span>
+              <div>
+                <button data-storage-action="save" type="button">Speichern</button>
+                <button data-storage-action="load" type="button">Laden</button>
+                <button data-storage-action="clear" type="button">Löschen</button>
+              </div>
+            </article>
+            <article class="storage-card" data-storage-section="board">
+              <strong>Brett</strong>
+              <span>Positionen der Thesen</span>
+              <div>
+                <button data-storage-action="save" type="button">Speichern</button>
+                <button data-storage-action="load" type="button">Laden</button>
+                <button data-storage-action="clear" type="button">Löschen</button>
+              </div>
+            </article>
+            <article class="storage-card" data-storage-section="results">
+              <strong>Ergebnisse</strong>
+              <span>Werte pro Figur</span>
+              <div>
+                <button data-storage-action="save" type="button">Speichern</button>
+                <button data-storage-action="load" type="button">Laden</button>
+                <button data-storage-action="clear" type="button">Löschen</button>
+              </div>
+            </article>
+            <article class="storage-card" data-storage-section="randomizer">
+              <strong>Randomizer</strong>
+              <span>?-Wert und Springer-Kategorien</span>
+              <div>
+                <button data-storage-action="save" type="button">Speichern</button>
+                <button data-storage-action="load" type="button">Laden</button>
+                <button data-storage-action="clear" type="button">Löschen</button>
+              </div>
+            </article>
+            <article class="storage-card" data-storage-section="images">
+              <strong>Fotos</strong>
+              <span>Bilder in Figurenfeldern</span>
+              <div>
+                <button data-storage-action="save" type="button">Speichern</button>
+                <button data-storage-action="load" type="button">Laden</button>
+                <button data-storage-action="clear" type="button">Löschen</button>
+              </div>
+            </article>
+          </div>
+          <p class="storage-status" id="storageStatus" aria-live="polite"></p>
+        </section>
       </div>
     </dialog>
 

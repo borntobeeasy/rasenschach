@@ -42,6 +42,8 @@ const questionValueLabel = document.querySelector("#questionValueLabel");
 const knightCategoriesInput = document.querySelector("#knightCategoriesInput");
 const randomKnightButton = document.querySelector("#randomKnightButton");
 const knightCategoryLabel = document.querySelector("#knightCategoryLabel");
+const storageGrid = document.querySelector("#storageGrid");
+const storageStatus = document.querySelector("#storageStatus");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
@@ -201,10 +203,128 @@ function loadFigureImages() {
 
 function saveFigureImages() {
   try {
-    localStorage.setItem("rasenschach.figureImages", JSON.stringify(state.figureImages));
+    localStorage.setItem(getStorageKey("images"), JSON.stringify(state.figureImages));
   } catch {
     // Large local images can exceed browser storage; the current board still keeps them in memory.
   }
+}
+
+function getStorageKey(section) {
+  const keys = {
+    theses: "rasenschach.save.theses",
+    board: "rasenschach.save.board",
+    results: "rasenschach.save.results",
+    randomizer: "rasenschach.save.randomizer",
+    images: "rasenschach.figureImages",
+  };
+  return keys[section];
+}
+
+function saveSection(section) {
+  const payloads = {
+    theses: () => ({
+      theses: [...theses],
+      polarities: state.assignments.map(({ id, polarity }) => ({ id, polarity })),
+    }),
+    board: () => ({
+      positions: state.assignments.map(({ id, side, piece, knightSwing }) => ({ id, side, piece, knightSwing })),
+    }),
+    results: () => ({ results: state.results }),
+    randomizer: () => ({
+      questionValue: state.questionValue,
+      knightCategories: state.knightCategories,
+      selectedKnightCategory: state.selectedKnightCategory,
+    }),
+    images: () => ({ figureImages: state.figureImages }),
+  };
+
+  try {
+    localStorage.setItem(getStorageKey(section), JSON.stringify(payloads[section]()));
+    setStorageStatus(`${getSectionLabel(section)} gespeichert.`);
+  } catch {
+    setStorageStatus(`${getSectionLabel(section)} konnte nicht gespeichert werden.`);
+  }
+}
+
+function loadSection(section) {
+  const raw = localStorage.getItem(getStorageKey(section));
+  if (!raw) {
+    setStorageStatus(`${getSectionLabel(section)} hat keinen gespeicherten Stand.`);
+    return;
+  }
+
+  try {
+    const data = JSON.parse(raw);
+
+    if (section === "theses") {
+      data.theses?.forEach((value, index) => {
+        theses[index] = value;
+      });
+      data.polarities?.forEach(({ id, polarity }) => {
+        const assignment = state.assignments.find((item) => item.id === id);
+        if (assignment) assignment.polarity = polarity || null;
+      });
+    }
+
+    if (section === "board") {
+      data.positions?.forEach(({ id, side, piece, knightSwing }) => {
+        const assignment = state.assignments.find((item) => item.id === id);
+        if (assignment) {
+          assignment.side = side || null;
+          assignment.piece = piece || null;
+          assignment.knightSwing = knightSwing ?? assignment.knightSwing;
+        }
+      });
+    }
+
+    if (section === "results") {
+      state.results = structuredClone(initialBonuses);
+      Object.entries(data.results || {}).forEach(([side, values]) => {
+        Object.assign(state.results[side] || {}, values);
+      });
+      createResultSettings();
+    }
+
+    if (section === "randomizer") {
+      state.questionValue = data.questionValue ?? null;
+      state.knightCategories = Array.isArray(data.knightCategories) ? data.knightCategories : [...initialKnightCategories];
+      state.selectedKnightCategory = data.selectedKnightCategory || "";
+    }
+
+    if (section === "images") {
+      state.figureImages = data.figureImages || data || {};
+    }
+
+    render();
+    setStorageStatus(`${getSectionLabel(section)} geladen.`);
+  } catch {
+    setStorageStatus(`${getSectionLabel(section)} konnte nicht geladen werden.`);
+  }
+}
+
+function clearSection(section) {
+  localStorage.removeItem(getStorageKey(section));
+
+  if (section === "images") {
+    state.figureImages = {};
+    render();
+  }
+
+  setStorageStatus(`${getSectionLabel(section)} Speicher gelöscht.`);
+}
+
+function getSectionLabel(section) {
+  return {
+    theses: "Thesen",
+    board: "Brett",
+    results: "Ergebnisse",
+    randomizer: "Randomizer",
+    images: "Fotos",
+  }[section];
+}
+
+function setStorageStatus(message) {
+  storageStatus.textContent = message;
 }
 
 function createThesisList() {
@@ -568,6 +688,19 @@ resetButton.addEventListener("click", () => {
   state.selectedKnightCategory = "";
   createResultSettings();
   render();
+});
+
+storageGrid.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-storage-action]");
+  const card = event.target.closest("[data-storage-section]");
+  if (!button || !card) return;
+
+  const section = card.dataset.storageSection;
+  const action = button.dataset.storageAction;
+
+  if (action === "save") saveSection(section);
+  if (action === "load") loadSection(section);
+  if (action === "clear") clearSection(section);
 });
 
 createBoard();

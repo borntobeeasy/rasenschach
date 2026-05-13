@@ -606,6 +606,54 @@ textarea {
   gap: 10px;
 }
 
+.storage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.storage-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  padding: 12px;
+}
+
+.storage-card span,
+.storage-status {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.storage-card div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.storage-card button {
+  min-height: 34px;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.storage-card button:first-child {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.storage-status {
+  min-height: 1.2em;
+  margin: 0;
+}
+
 .randomizer-card {
   display: grid;
   gap: 10px;
@@ -737,7 +785,8 @@ textarea {
   .scoreboard,
   .results-grid,
   .evaluation-list,
-  .randomizer-grid {
+  .randomizer-grid,
+  .storage-grid {
     grid-template-columns: 1fr;
   }
 
