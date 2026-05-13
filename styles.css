@@ -33,8 +33,7 @@ body {
 
 button,
 input,
-select,
-textarea {
+select {
   font: inherit;
 }
 
@@ -45,8 +44,7 @@ textarea {
 }
 
 .board-panel,
-.comparison,
-.notes-panel {
+.comparison {
   background: rgba(255, 254, 250, 0.9);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
@@ -107,19 +105,13 @@ label {
 }
 
 input,
-select,
-textarea {
+select {
   min-height: 38px;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--white);
   color: var(--ink);
   padding: 8px 10px;
-}
-
-textarea {
-  min-height: 96px;
-  resize: vertical;
 }
 
 .game-layout {
@@ -202,13 +194,15 @@ textarea {
   color: var(--ink);
 }
 
-.piece-symbol {
+.piece-svg {
   display: block;
-  color: currentColor;
-  font-family: "Segoe UI Symbol", "DejaVu Sans", "Noto Sans Symbols", serif;
-  font-size: clamp(3.2rem, 5.2vw, 5.25rem);
-  line-height: 1;
-  transform: translateY(-2px);
+  width: 66%;
+  max-width: 86px;
+  height: auto;
+}
+
+.piece-cell:not(.light) .piece-svg {
+  filter: invert(1);
 }
 
 .drop-cell {
@@ -537,11 +531,6 @@ textarea {
   padding: 18px 20px;
 }
 
-.notes-panel {
-  margin-top: 18px;
-  padding: 18px 20px;
-  border-radius: 8px;
-}
 
 .bar-row {
   display: grid;

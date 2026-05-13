@@ -1,9 +1,9 @@
 const pieces = [
-  { id: "rook", name: "Turm", value: "-/+3", base: 3, symbol: "♜" },
-  { id: "bishop", name: "Läufer", value: "-1", base: 1, symbol: "♝" },
-  { id: "knight", name: "Springer", value: "?", base: 1, symbol: "♞" },
-  { id: "queen", name: "Dame", value: "+1", base: 1, symbol: "♛" },
-  { id: "king", name: "König", value: "+/-3", base: 3, symbol: "♚" },
+  { id: "rook", name: "Turm", value: "-/+3", base: 3 },
+  { id: "bishop", name: "Läufer", value: "-1", base: 1 },
+  { id: "knight", name: "Springer", value: "?", base: 1 },
+  { id: "queen", name: "Dame", value: "+1", base: 1 },
+  { id: "king", name: "König", value: "+/-3", base: 3 },
 ];
 
 const theses = Array.from({ length: 12 }, (_, index) => `These ${index + 1}`);
@@ -52,7 +52,7 @@ function createBoard() {
           cell.classList.add("light");
         }
         cell.setAttribute("aria-label", piece.name);
-        cell.innerHTML = `<span class="piece-symbol" aria-hidden="true">${piece.symbol}</span>`;
+        cell.innerHTML = `<img class="piece-svg" src="assets/pieces/${piece.id}.svg" alt="" />`;
       } else {
         cell.classList.add("drop-cell");
         cell.dataset.side = row;
