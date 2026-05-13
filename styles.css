@@ -409,9 +409,9 @@ textarea {
   flex-wrap: wrap;
   gap: 8px;
   justify-content: flex-end;
+  width: 100%;
 }
 
-#resetButton,
 #openSettingsButton,
 .close-button {
   min-height: 38px;

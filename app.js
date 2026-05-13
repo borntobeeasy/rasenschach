@@ -33,7 +33,6 @@ const pieceGrid = document.querySelector("#pieceGrid");
 const thesisList = document.querySelector("#thesisList");
 const evaluationList = document.querySelector("#evaluationList");
 const resultsGrid = document.querySelector("#resultsGrid");
-const resetButton = document.querySelector("#resetButton");
 const openSettingsButton = document.querySelector("#openSettingsButton");
 const closeSettingsButton = document.querySelector("#closeSettingsButton");
 const settingsDialog = document.querySelector("#settingsDialog");
@@ -674,22 +673,6 @@ closeSettingsButton.addEventListener("click", () => {
   }
 });
 
-resetButton.addEventListener("click", () => {
-  state.assignments = theses.map((_, index) => ({
-    id: index + 1,
-    side: null,
-    piece: null,
-    polarity: null,
-    knightSwing: Math.random() > 0.5 ? 1 : -1,
-  }));
-  state.results = structuredClone(initialBonuses);
-  state.questionValue = null;
-  state.knightCategories = [...initialKnightCategories];
-  state.selectedKnightCategory = "";
-  createResultSettings();
-  render();
-});
-
 storageGrid.addEventListener("click", (event) => {
   const button = event.target.closest("[data-storage-action]");
   const card = event.target.closest("[data-storage-section]");
@@ -709,7 +692,8 @@ renderRandomizerState();
 render();
 
 randomQuestionButton.addEventListener("click", () => {
-  state.questionValue = Math.floor(Math.random() * 7) - 3;
+  const values = [-3, -2, -1, 1, 2, 3];
+  state.questionValue = values[Math.floor(Math.random() * values.length)];
   render();
 });
 
