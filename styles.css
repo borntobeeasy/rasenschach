@@ -414,6 +414,7 @@ textarea {
 }
 
 #openSettingsButton,
+#openMatchdayButton,
 .close-button {
   min-height: 38px;
   border: 1px solid var(--ink);
@@ -424,9 +425,14 @@ textarea {
   cursor: pointer;
 }
 
-#openSettingsButton {
+#openSettingsButton,
+#openMatchdayButton {
   background: var(--white);
   color: var(--ink);
+}
+
+[hidden] {
+  display: none !important;
 }
 
 .close-button {

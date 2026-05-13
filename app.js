@@ -35,6 +35,8 @@ const thesisList = document.querySelector("#thesisList");
 const evaluationList = document.querySelector("#evaluationList");
 const resultsGrid = document.querySelector("#resultsGrid");
 const openSettingsButton = document.querySelector("#openSettingsButton");
+const openMatchdayButton = document.querySelector("#openMatchdayButton");
+const backToBoardButton = document.querySelector("#backToBoardButton");
 const closeSettingsButton = document.querySelector("#closeSettingsButton");
 const settingsDialog = document.querySelector("#settingsDialog");
 const randomQuestionButton = document.querySelector("#randomQuestionButton");
@@ -50,6 +52,8 @@ const addMatchButton = document.querySelector("#addMatchButton");
 const saveMatchdayButton = document.querySelector("#saveMatchdayButton");
 const matchdayStatus = document.querySelector("#matchdayStatus");
 const matchdayNumberInput = document.querySelector("#matchdayNumberInput");
+const boardPanel = document.querySelector(".board-panel");
+const matchdayPage = document.querySelector("#matchdayPage");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
@@ -760,6 +764,17 @@ closeSettingsButton.addEventListener("click", () => {
     settingsDialog.removeAttribute("open");
     settingsDialog.classList.remove("is-open");
   }
+});
+
+openMatchdayButton.addEventListener("click", () => {
+  boardPanel.hidden = true;
+  matchdayPage.hidden = false;
+  renderMatchday();
+});
+
+backToBoardButton.addEventListener("click", () => {
+  matchdayPage.hidden = true;
+  boardPanel.hidden = false;
 });
 
 storageGrid.addEventListener("click", (event) => {
