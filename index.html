@@ -98,6 +98,30 @@
           </div>
           <div class="results-grid" id="resultsGrid"></div>
         </section>
+
+        <section class="results-panel" aria-label="Randomizer">
+          <div>
+            <p class="eyebrow">Randomizer</p>
+            <h2>Zufall festlegen</h2>
+          </div>
+          <div class="randomizer-grid">
+            <article class="randomizer-card">
+              <div>
+                <strong>? Feld</strong>
+                <span id="questionValueLabel">noch nicht gewürfelt</span>
+              </div>
+              <button id="randomQuestionButton" type="button">-3 bis +3 würfeln</button>
+            </article>
+            <article class="randomizer-card">
+              <div>
+                <strong>Springer Kategorie</strong>
+                <span id="knightCategoryLabel">noch nicht gewählt</span>
+              </div>
+              <textarea id="knightCategoriesInput" rows="5" placeholder="Eine Kategorie pro Zeile"></textarea>
+              <button id="randomKnightButton" type="button">Kategorie würfeln</button>
+            </article>
+          </div>
+        </section>
       </div>
     </dialog>
 

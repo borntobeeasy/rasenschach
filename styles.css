@@ -37,6 +37,10 @@ select {
   font: inherit;
 }
 
+textarea {
+  font: inherit;
+}
+
 .app-shell {
   width: min(1440px, calc(100% - 32px));
   margin: 0 auto;
@@ -112,6 +116,15 @@ select {
   background: var(--white);
   color: var(--ink);
   padding: 8px 10px;
+}
+
+textarea {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--ink);
+  padding: 8px 10px;
+  resize: vertical;
 }
 
 .game-layout {
@@ -211,6 +224,20 @@ select {
   filter: invert(1);
 }
 
+.piece-corner {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  width: 28%;
+  max-width: 38px;
+  padding: 4px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
+  filter: none !important;
+}
+
 .piece-cell::after {
   content: "Foto ablegen";
   position: absolute;
@@ -252,10 +279,10 @@ select {
 
 .player-photo {
   position: absolute;
-  inset: 8px;
+  inset: 7px;
   z-index: 1;
-  width: calc(100% - 16px);
-  height: calc(100% - 16px);
+  width: calc(100% - 14px);
+  height: calc(100% - 14px);
   border-radius: 8px;
   background:
     radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.4), transparent 34%),
@@ -573,6 +600,41 @@ select {
   gap: 8px;
 }
 
+.randomizer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.randomizer-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  padding: 12px;
+}
+
+.randomizer-card div {
+  display: grid;
+  gap: 4px;
+}
+
+.randomizer-card span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.randomizer-card button {
+  min-height: 36px;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--white);
+  cursor: pointer;
+  font-weight: 800;
+}
+
 .result-group {
   display: grid;
   gap: 8px;
@@ -674,7 +736,8 @@ select {
   .match-controls,
   .scoreboard,
   .results-grid,
-  .evaluation-list {
+  .evaluation-list,
+  .randomizer-grid {
     grid-template-columns: 1fr;
   }
 

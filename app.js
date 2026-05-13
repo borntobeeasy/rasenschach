@@ -12,6 +12,7 @@ const initialBonuses = {
   white: { rook: 0, bishop: 0, knight: 0, queen: 0, king: 0 },
   black: { rook: 0, bishop: 0, knight: 0, queen: 0, king: 0 },
 };
+const initialKnightCategories = ["Tempo", "Zweikampf", "Passspiel", "Laufwege"];
 
 const state = {
   assignments: theses.map((_, index) => ({
@@ -23,6 +24,9 @@ const state = {
   })),
   results: structuredClone(initialBonuses),
   figureImages: loadFigureImages(),
+  questionValue: null,
+  knightCategories: [...initialKnightCategories],
+  selectedKnightCategory: "",
 };
 
 const pieceGrid = document.querySelector("#pieceGrid");
@@ -33,6 +37,11 @@ const resetButton = document.querySelector("#resetButton");
 const openSettingsButton = document.querySelector("#openSettingsButton");
 const closeSettingsButton = document.querySelector("#closeSettingsButton");
 const settingsDialog = document.querySelector("#settingsDialog");
+const randomQuestionButton = document.querySelector("#randomQuestionButton");
+const questionValueLabel = document.querySelector("#questionValueLabel");
+const knightCategoriesInput = document.querySelector("#knightCategoriesInput");
+const randomKnightButton = document.querySelector("#randomKnightButton");
+const knightCategoryLabel = document.querySelector("#knightCategoryLabel");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
@@ -64,7 +73,7 @@ function createBoard() {
         cell.dataset.side = row;
         cell.dataset.piece = piece.id;
         cell.innerHTML = `
-          <div class="cell-value">${piece.value}</div>
+          <div class="cell-value">${getDisplayValue(piece)}</div>
           <div class="placed-list" data-slot="${row}-${piece.id}"></div>
         `;
         cell.addEventListener("dragover", handleDragOver);
@@ -83,6 +92,7 @@ function renderFigureCell(cell, piece) {
     cell.classList.add("has-player-image");
     cell.innerHTML = `
       <img class="player-photo" src="${image}" alt="" />
+      <img class="piece-svg piece-corner" src="assets/pieces/${piece.id}.svg" alt="" />
       <button class="remove-player-photo" type="button" aria-label="Bild entfernen">×</button>
     `;
     cell.querySelector(".remove-player-photo").addEventListener("click", (event) => {
@@ -96,6 +106,14 @@ function renderFigureCell(cell, piece) {
 
   cell.classList.remove("has-player-image");
   cell.innerHTML = `<img class="piece-svg" src="assets/pieces/${piece.id}.svg" alt="" />`;
+}
+
+function getDisplayValue(piece) {
+  if (piece.id === "knight" && state.questionValue !== null) {
+    return state.questionValue > 0 ? `+${state.questionValue}` : String(state.questionValue);
+  }
+
+  return piece.value;
 }
 
 function handleFigurePick(event) {
@@ -374,7 +392,7 @@ function getBaseScore(assignment) {
   const sign = assignment.polarity === "positive" ? 1 : -1;
 
   if (piece.id === "knight") {
-    return assignment.knightSwing * sign;
+    return (state.questionValue ?? assignment.knightSwing) * sign;
   }
 
   if (piece.id === "rook") {
@@ -458,11 +476,31 @@ function renderTotals() {
 }
 
 function render() {
+  createBoard();
   createThesisList();
   createEvaluationList();
   renderPlacements();
   renderTotals();
+  renderRandomizerState();
   fitAllCardText();
+}
+
+function renderRandomizerState() {
+  if (questionValueLabel) {
+    questionValueLabel.textContent = state.questionValue === null ? "noch nicht gewürfelt" : getSignedNumber(state.questionValue);
+  }
+
+  if (knightCategoriesInput && document.activeElement !== knightCategoriesInput) {
+    knightCategoriesInput.value = state.knightCategories.join("\n");
+  }
+
+  if (knightCategoryLabel) {
+    knightCategoryLabel.textContent = state.selectedKnightCategory || "noch nicht gewählt";
+  }
+}
+
+function getSignedNumber(value) {
+  return value > 0 ? `+${value}` : String(value);
 }
 
 evaluationList.addEventListener("click", (event) => {
@@ -525,10 +563,36 @@ resetButton.addEventListener("click", () => {
     knightSwing: Math.random() > 0.5 ? 1 : -1,
   }));
   state.results = structuredClone(initialBonuses);
+  state.questionValue = null;
+  state.knightCategories = [...initialKnightCategories];
+  state.selectedKnightCategory = "";
   createResultSettings();
   render();
 });
 
 createBoard();
 createResultSettings();
+renderRandomizerState();
 render();
+
+randomQuestionButton.addEventListener("click", () => {
+  state.questionValue = Math.floor(Math.random() * 7) - 3;
+  render();
+});
+
+knightCategoriesInput.addEventListener("input", () => {
+  state.knightCategories = knightCategoriesInput.value
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+});
+
+randomKnightButton.addEventListener("click", () => {
+  if (!state.knightCategories.length) {
+    state.selectedKnightCategory = "";
+  } else {
+    const index = Math.floor(Math.random() * state.knightCategories.length);
+    state.selectedKnightCategory = state.knightCategories[index];
+  }
+  renderRandomizerState();
+});
