@@ -27,7 +27,6 @@ const state = {
   questionValue: null,
   knightCategories: [...initialKnightCategories],
   selectedKnightCategory: "",
-  matchday: loadMatchday(),
 };
 
 const pieceGrid = document.querySelector("#pieceGrid");
@@ -35,8 +34,6 @@ const thesisList = document.querySelector("#thesisList");
 const evaluationList = document.querySelector("#evaluationList");
 const resultsGrid = document.querySelector("#resultsGrid");
 const openSettingsButton = document.querySelector("#openSettingsButton");
-const openMatchdayButton = document.querySelector("#openMatchdayButton");
-const backToBoardButton = document.querySelector("#backToBoardButton");
 const closeSettingsButton = document.querySelector("#closeSettingsButton");
 const settingsDialog = document.querySelector("#settingsDialog");
 const randomQuestionButton = document.querySelector("#randomQuestionButton");
@@ -46,16 +43,6 @@ const randomKnightButton = document.querySelector("#randomKnightButton");
 const knightCategoryLabel = document.querySelector("#knightCategoryLabel");
 const storageGrid = document.querySelector("#storageGrid");
 const storageStatus = document.querySelector("#storageStatus");
-const matchList = document.querySelector("#matchList");
-const matchChart = document.querySelector("#matchChart");
-const addMatchButton = document.querySelector("#addMatchButton");
-const saveMatchdayButton = document.querySelector("#saveMatchdayButton");
-const matchdayStatus = document.querySelector("#matchdayStatus");
-const matchdayNumberInput = document.querySelector("#matchdayNumberInput");
-const boardPanel = document.querySelector(".board-panel");
-const matchdayPage = document.querySelector("#matchdayPage");
-const thesisPointsChart = document.querySelector("#thesisPointsChart");
-const piecePointsChart = document.querySelector("#piecePointsChart");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
@@ -222,33 +209,6 @@ function saveFigureImages() {
   } catch {
     // Large local images can exceed browser storage; the current board still keeps them in memory.
   }
-}
-
-function loadMatchday() {
-  try {
-    const saved = JSON.parse(localStorage.getItem("rasenschach.matchday"));
-    if (Array.isArray(saved)) {
-      return { number: 1, matches: saved };
-    }
-
-    return (
-      saved || {
-        number: 1,
-        matches: [
-        { home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 },
-        { home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 },
-        { home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 },
-        ],
-      }
-    );
-  } catch {
-    return { number: 1, matches: [{ home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 }] };
-  }
-}
-
-function saveMatchday() {
-  localStorage.setItem("rasenschach.matchday", JSON.stringify(state.matchday));
-  matchdayStatus.textContent = "Spieltag gespeichert.";
 }
 
 function getStorageKey(section) {
@@ -658,134 +618,7 @@ function render() {
   renderPlacements();
   renderTotals();
   renderRandomizerState();
-  renderPointsAnalysis();
-  renderMatchday();
   fitAllCardText();
-}
-
-function renderPointsAnalysis() {
-  renderThesisPoints();
-  renderPiecePoints();
-}
-
-function renderThesisPoints() {
-  const rows = state.assignments.map((assignment) => ({
-    label: theses[assignment.id - 1],
-    meta: assignment.side && assignment.piece ? `${assignment.side === "white" ? "Weiß" : "Schwarz"} · ${getPieceName(assignment.piece)}` : "nicht gesetzt",
-    value: getAssignmentScore(assignment),
-  }));
-  renderSignedRows(thesisPointsChart, rows);
-}
-
-function renderPiecePoints() {
-  const totals = [];
-
-  ["white", "black"].forEach((side) => {
-    pieces.forEach((piece) => {
-      const value = state.assignments
-        .filter((assignment) => assignment.side === side && assignment.piece === piece.id)
-        .reduce((sum, assignment) => sum + getAssignmentScore(assignment), 0);
-
-      totals.push({
-        label: `${side === "white" ? "Weiß" : "Schwarz"} · ${piece.name}`,
-        meta: `${state.assignments.filter((assignment) => assignment.side === side && assignment.piece === piece.id).length} Thesen`,
-        value,
-      });
-    });
-  });
-
-  renderSignedRows(piecePointsChart, totals);
-}
-
-function renderSignedRows(target, rows) {
-  target.innerHTML = "";
-  const maxAbs = Math.max(...rows.map((row) => Math.abs(row.value)), 1);
-
-  rows.forEach((row) => {
-    const item = document.createElement("article");
-    item.className = "points-row";
-    item.innerHTML = `
-      <div class="points-label">
-        <strong>${escapeHtml(row.label)}</strong>
-        <span>${escapeHtml(row.meta)}</span>
-      </div>
-      <div class="signed-track">
-        <i class="zero-line"></i>
-        <b class="signed-bar ${row.value < 0 ? "negative" : "positive"}" style="${getSignedBarStyle(row.value, maxAbs)}"></b>
-      </div>
-      <strong class="points-value">${getSignedNumber(row.value)}</strong>
-    `;
-    target.appendChild(item);
-  });
-}
-
-function getSignedBarStyle(value, maxAbs) {
-  const magnitude = Math.min(50, (Math.abs(value) / maxAbs) * 50);
-  return value < 0 ? `left:${50 - magnitude}%;width:${magnitude}%` : `left:50%;width:${magnitude}%`;
-}
-
-function getPieceName(pieceId) {
-  return pieces.find((piece) => piece.id === pieceId)?.name || pieceId;
-}
-
-function renderMatchday() {
-  matchdayNumberInput.value = state.matchday.number ?? 1;
-  matchList.innerHTML = "";
-
-  state.matchday.matches.forEach((match, index) => {
-    const row = document.createElement("article");
-    row.className = "match-row";
-    row.innerHTML = `
-      <input data-match="${index}" data-field="home" value="${escapeAttribute(match.home)}" aria-label="Heimteam ${index + 1}" />
-      <input data-match="${index}" data-field="homeGoals" type="number" step="1" value="${Number(match.homeGoals) || 0}" aria-label="Heimpunkte ${index + 1}" />
-      <span>:</span>
-      <input data-match="${index}" data-field="awayGoals" type="number" step="1" value="${Number(match.awayGoals) || 0}" aria-label="Auswärtspunkte ${index + 1}" />
-      <input data-match="${index}" data-field="away" value="${escapeAttribute(match.away)}" aria-label="Auswärtsteam ${index + 1}" />
-      <button data-remove-match="${index}" type="button" aria-label="Spiel entfernen">×</button>
-    `;
-    matchList.appendChild(row);
-  });
-
-  renderMatchChart();
-}
-
-function renderMatchChart() {
-  matchChart.innerHTML = "";
-
-  state.matchday.matches.forEach((match) => {
-    const homeGoals = Number(match.homeGoals) || 0;
-    const awayGoals = Number(match.awayGoals) || 0;
-    const maxAbs = Math.max(Math.abs(homeGoals), Math.abs(awayGoals), 1);
-    const chart = document.createElement("article");
-    chart.className = "chart-row";
-    chart.innerHTML = `
-      <div class="chart-label">
-        <strong>${escapeHtml(match.home)} ${homeGoals}:${awayGoals} ${escapeHtml(match.away)}</strong>
-      </div>
-      <div class="signed-bars">
-        ${renderSignedBar(match.home, homeGoals, maxAbs, "home")}
-        ${renderSignedBar(match.away, awayGoals, maxAbs, "away")}
-      </div>
-    `;
-    matchChart.appendChild(chart);
-  });
-}
-
-function renderSignedBar(label, value, maxAbs, type) {
-  const magnitude = Math.min(50, (Math.abs(value) / maxAbs) * 50);
-  const sideClass = value < 0 ? "negative" : "positive";
-  const style = value < 0 ? `left:${50 - magnitude}%;width:${magnitude}%` : `left:50%;width:${magnitude}%`;
-
-  return `
-    <div class="signed-bar-row">
-      <span>${escapeHtml(label)}</span>
-      <div class="signed-track">
-        <i class="zero-line"></i>
-        <b class="signed-bar ${type} ${sideClass}" style="${style}"></b>
-      </div>
-      <strong>${getSignedNumber(value)}</strong>
-    </div>
-  `;
 }
 
 function renderRandomizerState() {
@@ -835,7 +668,6 @@ resultsGrid.addEventListener("input", (event) => {
   createBoard();
   renderPlacements();
   renderTotals();
-  renderPointsAnalysis();
   fitAllCardText();
 });
 
@@ -861,17 +693,6 @@ closeSettingsButton.addEventListener("click", () => {
   }
 });
 
-openMatchdayButton.addEventListener("click", () => {
-  boardPanel.hidden = true;
-  matchdayPage.hidden = false;
-  renderMatchday();
-});
-
-backToBoardButton.addEventListener("click", () => {
-  matchdayPage.hidden = true;
-  boardPanel.hidden = false;
-});
-
 storageGrid.addEventListener("click", (event) => {
   const button = event.target.closest("[data-storage-action]");
   const card = event.target.closest("[data-storage-section]");
@@ -885,39 +706,9 @@ storageGrid.addEventListener("click", (event) => {
   if (action === "clear") clearSection(section);
 });
 
-matchList.addEventListener("input", (event) => {
-  const input = event.target;
-  const index = Number(input.dataset.match);
-  const field = input.dataset.field;
-  if (!Number.isInteger(index) || !field) return;
-
-  state.matchday.matches[index][field] = field.endsWith("Goals") ? Number(input.value) : input.value;
-  renderMatchChart();
-});
-
-matchList.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-remove-match]");
-  if (!button) return;
-
-  state.matchday.matches.splice(Number(button.dataset.removeMatch), 1);
-  renderMatchday();
-});
-
-addMatchButton.addEventListener("click", () => {
-  state.matchday.matches.push({ home: "Heimteam", away: "Auswärtsteam", homeGoals: 0, awayGoals: 0 });
-  renderMatchday();
-});
-
-saveMatchdayButton.addEventListener("click", saveMatchday);
-
-matchdayNumberInput.addEventListener("input", () => {
-  state.matchday.number = Number(matchdayNumberInput.value) || 1;
-});
-
 createBoard();
 createResultSettings();
 renderRandomizerState();
-renderMatchday();
 render();
 
 randomQuestionButton.addEventListener("click", () => {

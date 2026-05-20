@@ -48,8 +48,7 @@ textarea {
   padding: 28px 0 40px;
 }
 
-.board-panel,
-.matchday-panel {
+.board-panel {
   background: rgba(255, 254, 250, 0.9);
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
@@ -62,8 +61,7 @@ textarea {
 
 .topbar,
 .thesis-head,
-.settings-head,
-.matchday-head {
+.settings-head {
   display: flex;
   align-items: end;
   justify-content: space-between;
@@ -463,70 +461,6 @@ textarea {
   background: rgba(255, 254, 250, 0.74);
 }
 
-.points-panel {
-  display: grid;
-  gap: 14px;
-  margin-top: 18px;
-  border-top: 1px solid var(--line);
-  padding-top: 18px;
-}
-
-.points-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px;
-}
-
-.points-card {
-  display: grid;
-  gap: 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(255, 254, 250, 0.82);
-  padding: 14px;
-}
-
-.points-card h3 {
-  margin: 0;
-}
-
-.points-chart {
-  display: grid;
-  gap: 8px;
-  max-height: 320px;
-  overflow: auto;
-}
-
-.points-row {
-  display: grid;
-  grid-template-columns: minmax(130px, 1.2fr) minmax(160px, 1fr) 46px;
-  gap: 10px;
-  align-items: center;
-}
-
-.points-label {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.points-label strong,
-.points-label span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.points-label span {
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.points-value {
-  text-align: right;
-}
-
 .action-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -536,7 +470,6 @@ textarea {
 }
 
 #openSettingsButton,
-#openMatchdayButton,
 .close-button {
   min-height: 38px;
   border: 1px solid var(--ink);
@@ -547,8 +480,7 @@ textarea {
   cursor: pointer;
 }
 
-#openSettingsButton,
-#openMatchdayButton {
+#openSettingsButton {
   background: var(--white);
   color: var(--ink);
 }
@@ -842,117 +774,6 @@ textarea {
   width: 100%;
 }
 
-.matchday-panel {
-  display: grid;
-  gap: 16px;
-  margin-top: 18px;
-  padding: 18px 20px;
-  border-radius: 8px;
-}
-
-.matchday-layout {
-  display: grid;
-  grid-template-columns: minmax(360px, 1fr) minmax(320px, 0.75fr);
-  gap: 18px;
-}
-
-.matchday-number {
-  min-width: 140px;
-}
-
-.match-list,
-.match-chart {
-  display: grid;
-  gap: 10px;
-  align-content: start;
-}
-
-.match-row {
-  display: grid;
-  grid-template-columns: minmax(100px, 1fr) 58px 20px 58px minmax(100px, 1fr) 34px;
-  gap: 8px;
-  align-items: center;
-}
-
-.match-row span {
-  text-align: center;
-  font-weight: 900;
-}
-
-.match-row button {
-  min-height: 34px;
-  border: 1px solid var(--ink);
-  border-radius: 6px;
-  background: var(--ink);
-  color: var(--white);
-  cursor: pointer;
-  font-weight: 900;
-}
-
-.chart-row {
-  display: grid;
-  gap: 6px;
-}
-
-.chart-label {
-  font-size: 0.88rem;
-  font-weight: 800;
-}
-
-.signed-bars {
-  display: grid;
-  gap: 6px;
-}
-
-.signed-bar-row {
-  display: grid;
-  grid-template-columns: minmax(82px, 1fr) minmax(140px, 2fr) 42px;
-  gap: 8px;
-  align-items: center;
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-.signed-track {
-  position: relative;
-  height: 22px;
-  overflow: hidden;
-  border: 1px solid var(--ink);
-  border-radius: 6px;
-  background: var(--white);
-}
-
-.zero-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: var(--ink);
-  opacity: 0.55;
-}
-
-.signed-bar {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  transition:
-    left 160ms ease,
-    width 160ms ease;
-}
-
-.signed-bar.positive,
-.signed-bar.home.positive,
-.signed-bar.away.positive {
-  background: var(--green);
-}
-
-.signed-bar.negative,
-.signed-bar.home.negative,
-.signed-bar.away.negative {
-  background: var(--red);
-}
-
 @media (max-width: 1120px) {
   .game-layout {
     grid-template-columns: 1fr;
@@ -974,8 +795,7 @@ textarea {
     padding-top: 10px;
   }
 
-  .board-panel,
-  .matchday-panel {
+  .board-panel {
     padding: 12px;
   }
 
@@ -987,7 +807,6 @@ textarea {
 
   .match-controls,
   .scoreboard,
-  .points-layout,
   .results-grid,
   .evaluation-list,
   .randomizer-grid,
@@ -1017,9 +836,4 @@ textarea {
     min-height: 20px;
   }
 
-  .matchday-layout,
-  .match-row,
-  .points-row {
-    grid-template-columns: 1fr;
-  }
 }

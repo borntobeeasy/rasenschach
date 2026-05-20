@@ -46,7 +46,6 @@
             <div class="thesis-head">
               <div class="action-buttons">
                 <button id="openSettingsButton" type="button">Einstellungen</button>
-                <button id="openMatchdayButton" type="button">Spieltag</button>
               </div>
             </div>
             <div class="thesis-list" id="thesisList"></div>
@@ -54,48 +53,8 @@
           </section>
         </div>
 
-        <section class="points-panel" aria-label="Punkteanalyse">
-          <header class="points-head">
-            <div>
-              <p class="eyebrow">Punkte</p>
-              <h2>Beitrag nach These und Figur</h2>
-            </div>
-          </header>
-          <div class="points-layout">
-            <section class="points-card">
-              <h3>Thesen</h3>
-              <div id="thesisPointsChart" class="points-chart"></div>
-            </section>
-            <section class="points-card">
-              <h3>Figuren</h3>
-              <div id="piecePointsChart" class="points-chart"></div>
-            </section>
-          </div>
-        </section>
       </section>
 
-      <section class="matchday-panel app-page" id="matchdayPage" aria-label="Spieltags Ergebnisse" hidden>
-        <header class="matchday-head">
-          <div>
-            <p class="eyebrow">Spieltag</p>
-            <h2>Ergebnisse eintragen</h2>
-          </div>
-          <label class="matchday-number">
-            Spieltag Nr.
-            <input id="matchdayNumberInput" type="number" step="1" value="1" />
-          </label>
-          <div class="action-buttons">
-            <button id="addMatchButton" type="button">Spiel hinzufügen</button>
-            <button id="saveMatchdayButton" type="button">Spieltag speichern</button>
-            <button id="backToBoardButton" type="button">Zum Brett</button>
-          </div>
-        </header>
-        <div class="matchday-layout">
-          <div class="match-list" id="matchList"></div>
-          <div class="match-chart" id="matchChart" aria-label="Grafische Ergebnisdarstellung"></div>
-        </div>
-        <p class="storage-status" id="matchdayStatus" aria-live="polite"></p>
-      </section>
     </main>
 
     <dialog class="settings-dialog" id="settingsDialog" aria-label="Auswertung eintragen">
