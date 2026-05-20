@@ -11,7 +11,8 @@
   --black: #101010;
   --green: #12745c;
   --red: #b53232;
-  --cell-size: clamp(92px, 8.5vw, 132px);
+  --zero: #77736b;
+  --cell-size: clamp(70px, min(8.4vw, 17.5vh), 132px);
   --shadow: 0 18px 45px rgba(25, 22, 17, 0.08);
 }
 
@@ -130,7 +131,7 @@ textarea {
 
 .game-layout {
   display: grid;
-  grid-template-columns: minmax(120px, 0.36fr) auto minmax(360px, 0.95fr);
+  grid-template-columns: minmax(112px, 0.32fr) minmax(0, auto) minmax(320px, 0.9fr);
   gap: 20px;
   align-items: stretch;
 }
@@ -172,6 +173,7 @@ textarea {
   position: relative;
   width: max-content;
   max-width: 100%;
+  justify-self: center;
 }
 
 .chess-grid {
@@ -325,6 +327,14 @@ textarea {
   background-size: 18px 18px;
 }
 
+.cell-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+}
+
 .drop-cell.drag-over {
   background:
     linear-gradient(var(--grid) 1px, transparent 1px),
@@ -342,22 +352,62 @@ textarea {
 }
 
 .cell-value {
-  font-size: clamp(1.2rem, 2vw, 1.8rem);
+  font-size: clamp(1rem, calc(var(--cell-size) * 0.18), 1.8rem);
+  font-weight: 900;
   line-height: 1;
+}
+
+.field-score,
+.chip-score {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--zero);
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.field-score {
+  min-width: clamp(24px, calc(var(--cell-size) * 0.28), 36px);
+  min-height: clamp(20px, calc(var(--cell-size) * 0.22), 30px);
+  padding: 3px 5px;
+  font-size: clamp(0.7rem, calc(var(--cell-size) * 0.11), 0.92rem);
+}
+
+.field-score.positive,
+.chip-score.positive,
+.placed-chip.positive .chip-score {
+  color: var(--green);
+}
+
+.field-score.negative,
+.chip-score.negative,
+.placed-chip.negative .chip-score {
+  color: var(--red);
+}
+
+.field-score.neutral,
+.chip-score.neutral,
+.placed-chip.neutral .chip-score {
+  color: var(--zero);
 }
 
 .placed-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   grid-auto-rows: minmax(24px, auto);
   gap: 4px;
   min-height: 0;
 }
 
 .placed-chip {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: center;
+  gap: 3px;
   width: 100%;
   min-width: 0;
   min-height: 24px;
@@ -370,12 +420,20 @@ textarea {
   line-height: 1.05;
   overflow-wrap: anywhere;
   padding: 2px;
-  text-align: center;
+  text-align: left;
+}
+
+.chip-score {
+  min-width: 20px;
+  min-height: 18px;
+  padding: 2px 4px;
+  font-size: 0.66rem;
 }
 
 .fit-text {
   display: block;
   max-width: 100%;
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
@@ -906,7 +964,7 @@ textarea {
 
   .field-wrap {
     width: 100%;
-    overflow-x: auto;
+    overflow: visible;
   }
 }
 
@@ -937,8 +995,26 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .game-layout {
+    gap: 14px;
+  }
+
   .chess-grid {
-    --cell-size: 104px;
+    --cell-size: clamp(52px, calc((100vw - 64px) / 5), 104px);
+  }
+
+  .grid-cell {
+    padding: 5px;
+  }
+
+  .placed-list {
+    grid-template-columns: 1fr;
+    grid-auto-rows: minmax(20px, auto);
+    gap: 3px;
+  }
+
+  .placed-chip {
+    min-height: 20px;
   }
 
   .matchday-layout,

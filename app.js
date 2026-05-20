@@ -87,7 +87,10 @@ function createBoard() {
         cell.dataset.side = row;
         cell.dataset.piece = piece.id;
         cell.innerHTML = `
-          <div class="cell-value">${getDisplayValue(piece)}</div>
+          <div class="cell-head">
+            <div class="cell-value">${getDisplayValue(piece)}</div>
+            <strong class="field-score ${getScoreTone(getSlotScore(row, piece.id))}">${getSignedNumber(getSlotScore(row, piece.id))}</strong>
+          </div>
           <div class="placed-list" data-slot="${row}-${piece.id}"></div>
         `;
         cell.addEventListener("dragover", handleDragOver);
@@ -550,6 +553,18 @@ function getAssignmentScore(assignment) {
   return getBaseScore(assignment) + getResultBonus(assignment);
 }
 
+function getSlotScore(side, pieceId) {
+  return state.assignments
+    .filter((assignment) => assignment.side === side && assignment.piece === pieceId)
+    .reduce((sum, assignment) => sum + getAssignmentScore(assignment), 0);
+}
+
+function getScoreTone(value) {
+  if (value > 0) return "positive";
+  if (value < 0) return "negative";
+  return "neutral";
+}
+
 function getBaseScore(assignment) {
   if (!assignment.piece || !assignment.polarity) return 0;
   const piece = pieces.find((item) => item.id === assignment.piece);
@@ -587,11 +602,15 @@ function renderPlacements() {
     if (!slot) return;
 
     const chip = document.createElement("span");
-    chip.className = "placed-chip";
+    const score = getAssignmentScore(assignment);
+    chip.className = `placed-chip ${getScoreTone(score)}`;
     chip.draggable = true;
     chip.dataset.id = assignment.id;
-    chip.innerHTML = `<span class="fit-text">${escapeHtml(theses[assignment.id - 1])}</span>`;
-    chip.title = `${theses[assignment.id - 1]} ${getPolarityLabel(assignment)}`;
+    chip.innerHTML = `
+      <span class="fit-text">${escapeHtml(theses[assignment.id - 1])}</span>
+      <strong class="chip-score">${getSignedNumber(score)}</strong>
+    `;
+    chip.title = `${theses[assignment.id - 1]} ${getPolarityLabel(assignment)} ${getSignedNumber(score)}`;
     chip.addEventListener("dragstart", handleDragStart);
     chip.addEventListener("pointerdown", handlePointerDragStart);
     slot.appendChild(chip);
@@ -614,7 +633,7 @@ function fitTextToContainer(text) {
   const minSize = text.closest(".placed-chip") ? 6 : 8;
   text.style.fontSize = `${size}px`;
 
-  while (size > minSize && (text.scrollHeight > container.clientHeight - 4 || text.scrollWidth > container.clientWidth - 4)) {
+  while (size > minSize && (text.scrollHeight > container.clientHeight - 4 || text.scrollWidth > text.clientWidth)) {
     size -= 1;
     text.style.fontSize = `${size}px`;
   }
@@ -813,7 +832,11 @@ resultsGrid.addEventListener("input", (event) => {
   if (!input.matches("[data-side][data-piece]")) return;
 
   state.results[input.dataset.side][input.dataset.piece] = Number(input.value);
+  createBoard();
+  renderPlacements();
   renderTotals();
+  renderPointsAnalysis();
+  fitAllCardText();
 });
 
 Object.values(nameInputs).forEach((input) => {
