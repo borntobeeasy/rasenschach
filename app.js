@@ -34,6 +34,7 @@ const thesisList = document.querySelector("#thesisList");
 const evaluationList = document.querySelector("#evaluationList");
 const resultsGrid = document.querySelector("#resultsGrid");
 const openSettingsButton = document.querySelector("#openSettingsButton");
+const openMatchdayButton = document.querySelector("#openMatchdayButton");
 const closeSettingsButton = document.querySelector("#closeSettingsButton");
 const settingsDialog = document.querySelector("#settingsDialog");
 const randomQuestionButton = document.querySelector("#randomQuestionButton");
@@ -60,6 +61,8 @@ function createBoard() {
       if (row === "top" || row === "bottom") {
         cell.classList.add("piece-cell");
         cell.dataset.figureSlot = `${row}-${piece.id}`;
+        cell.dataset.side = getFigureSide(row);
+        cell.dataset.piece = piece.id;
         if ((row === "top" && index % 2 === 1) || (row === "bottom" && index % 2 === 0)) {
           cell.classList.add("light");
         }
@@ -92,9 +95,12 @@ function createBoard() {
 
 function renderFigureCell(cell, piece) {
   const image = state.figureImages[cell.dataset.figureSlot];
+  const score = getSlotScore(cell.dataset.side, piece.id);
+  const scoreMarkup = `<strong class="field-watermark ${getScoreTone(score)}">${getSignedNumber(score)}</strong>`;
   if (image) {
     cell.classList.add("has-player-image");
     cell.innerHTML = `
+      ${scoreMarkup}
       <img class="player-photo" src="${image}" alt="" />
       <img class="piece-svg piece-corner" src="assets/pieces/${piece.id}.svg" alt="" />
       <button class="remove-player-photo" type="button" aria-label="Bild entfernen">×</button>
@@ -109,7 +115,14 @@ function renderFigureCell(cell, piece) {
   }
 
   cell.classList.remove("has-player-image");
-  cell.innerHTML = `<img class="piece-svg" src="assets/pieces/${piece.id}.svg" alt="" />`;
+  cell.innerHTML = `
+    ${scoreMarkup}
+    <img class="piece-svg" src="assets/pieces/${piece.id}.svg" alt="" />
+  `;
+}
+
+function getFigureSide(row) {
+  return row === "top" ? "white" : "black";
 }
 
 function getDisplayValue(piece) {
@@ -567,6 +580,7 @@ function renderPlacements() {
     chip.draggable = true;
     chip.dataset.id = assignment.id;
     chip.innerHTML = `
+      <strong class="chip-watermark">${getSignedNumber(score)}</strong>
       <span class="fit-text">${escapeHtml(theses[assignment.id - 1])}</span>
       <strong class="chip-score">${getSignedNumber(score)}</strong>
     `;
@@ -675,6 +689,8 @@ Object.values(nameInputs).forEach((input) => {
   input.addEventListener("input", renderTotals);
 });
 
+window.addEventListener("resize", fitAllCardText);
+
 openSettingsButton.addEventListener("click", () => {
   if (typeof settingsDialog.showModal === "function") {
     settingsDialog.showModal();
@@ -682,6 +698,10 @@ openSettingsButton.addEventListener("click", () => {
     settingsDialog.setAttribute("open", "");
     settingsDialog.classList.add("is-open");
   }
+});
+
+openMatchdayButton.addEventListener("click", () => {
+  // Der Button bleibt sichtbar; die Spieltag-Funktion dahinter ist bewusst entfernt.
 });
 
 closeSettingsButton.addEventListener("click", () => {
