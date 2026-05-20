@@ -211,15 +211,18 @@ textarea {
 
 .field-watermark {
   position: absolute;
-  top: clamp(6px, calc(var(--cell-size) * 0.08), 12px);
-  left: clamp(7px, calc(var(--cell-size) * 0.1), 14px);
-  z-index: 0;
+  right: clamp(7px, calc(var(--cell-size) * 0.08), 12px);
+  bottom: clamp(7px, calc(var(--cell-size) * 0.08), 12px);
+  z-index: 4;
   color: var(--zero);
-  font-size: clamp(1.5rem, calc(var(--cell-size) * 0.34), 3.2rem);
+  font-size: clamp(1.35rem, calc(var(--cell-size) * 0.28), 2.7rem);
   font-weight: 900;
   line-height: 1;
-  opacity: 0.32;
+  opacity: 0.72;
   pointer-events: none;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65),
+    0 0 12px rgba(255, 255, 255, 0.58);
 }
 
 .field-watermark.positive {
@@ -232,6 +235,12 @@ textarea {
 
 .field-watermark.neutral {
   color: var(--zero);
+}
+
+.piece-cell:not(.light) .field-watermark.neutral,
+.piece-cell.has-player-image .field-watermark.neutral {
+  color: rgba(255, 255, 255, 0.72);
+  opacity: 0.48;
 }
 
 .piece-cell.light {
@@ -383,7 +392,6 @@ textarea {
   line-height: 1;
 }
 
-.field-score,
 .chip-score {
   display: inline-grid;
   place-items: center;
@@ -396,26 +404,16 @@ textarea {
   white-space: nowrap;
 }
 
-.field-score {
-  min-width: clamp(24px, calc(var(--cell-size) * 0.28), 36px);
-  min-height: clamp(20px, calc(var(--cell-size) * 0.22), 30px);
-  padding: 3px 5px;
-  font-size: clamp(0.7rem, calc(var(--cell-size) * 0.11), 0.92rem);
-}
-
-.field-score.positive,
 .chip-score.positive,
 .placed-chip.positive .chip-score {
   color: var(--green);
 }
 
-.field-score.negative,
 .chip-score.negative,
 .placed-chip.negative .chip-score {
   color: var(--red);
 }
 
-.field-score.neutral,
 .chip-score.neutral,
 .placed-chip.neutral .chip-score {
   color: var(--zero);

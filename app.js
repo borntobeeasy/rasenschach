@@ -79,7 +79,6 @@ function createBoard() {
         cell.innerHTML = `
           <div class="cell-head">
             <div class="cell-value">${getDisplayValue(piece)}</div>
-            <strong class="field-score ${getScoreTone(getThesisSlotScore(row, piece.id))}">${getSignedNumber(getThesisSlotScore(row, piece.id))}</strong>
           </div>
           <div class="placed-list" data-slot="${row}-${piece.id}"></div>
         `;
@@ -519,12 +518,6 @@ function movePointerGhost(x, y) {
 function getAssignmentScore(assignment) {
   if (!assignment.side || !assignment.piece || !assignment.polarity) return 0;
   return getBaseScore(assignment);
-}
-
-function getThesisSlotScore(side, pieceId) {
-  return state.assignments
-    .filter((assignment) => assignment.side === side && assignment.piece === pieceId)
-    .reduce((sum, assignment) => sum + getAssignmentScore(assignment), 0);
 }
 
 function getPlayerScore(side, pieceId) {
