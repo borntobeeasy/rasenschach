@@ -405,6 +405,70 @@ textarea {
   background: rgba(255, 254, 250, 0.74);
 }
 
+.points-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+.points-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.points-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 254, 250, 0.82);
+  padding: 14px;
+}
+
+.points-card h3 {
+  margin: 0;
+}
+
+.points-chart {
+  display: grid;
+  gap: 8px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.points-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1.2fr) minmax(160px, 1fr) 46px;
+  gap: 10px;
+  align-items: center;
+}
+
+.points-label {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.points-label strong,
+.points-label span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.points-label span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.points-value {
+  text-align: right;
+}
+
 .action-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -819,11 +883,13 @@ textarea {
     width 160ms ease;
 }
 
+.signed-bar.positive,
 .signed-bar.home.positive,
 .signed-bar.away.positive {
   background: var(--green);
 }
 
+.signed-bar.negative,
 .signed-bar.home.negative,
 .signed-bar.away.negative {
   background: var(--red);
@@ -863,6 +929,7 @@ textarea {
 
   .match-controls,
   .scoreboard,
+  .points-layout,
   .results-grid,
   .evaluation-list,
   .randomizer-grid,
@@ -875,7 +942,8 @@ textarea {
   }
 
   .matchday-layout,
-  .match-row {
+  .match-row,
+  .points-row {
     grid-template-columns: 1fr;
   }
 }

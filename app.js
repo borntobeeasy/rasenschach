@@ -54,6 +54,8 @@ const matchdayStatus = document.querySelector("#matchdayStatus");
 const matchdayNumberInput = document.querySelector("#matchdayNumberInput");
 const boardPanel = document.querySelector(".board-panel");
 const matchdayPage = document.querySelector("#matchdayPage");
+const thesisPointsChart = document.querySelector("#thesisPointsChart");
+const piecePointsChart = document.querySelector("#piecePointsChart");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
@@ -543,6 +545,11 @@ function getResultBonus(assignment) {
   return Number(state.results[assignment.side][assignment.piece]) || 0;
 }
 
+function getAssignmentScore(assignment) {
+  if (!assignment.side || !assignment.piece || !assignment.polarity) return 0;
+  return getBaseScore(assignment) + getResultBonus(assignment);
+}
+
 function getBaseScore(assignment) {
   if (!assignment.piece || !assignment.polarity) return 0;
   const piece = pieces.find((item) => item.id === assignment.piece);
@@ -563,8 +570,7 @@ function calculateTotals() {
   const totals = { white: 0, black: 0 };
 
   state.assignments.forEach((assignment) => {
-    if (!assignment.side || !assignment.piece || !assignment.polarity) return;
-    totals[assignment.side] += getBaseScore(assignment) + getResultBonus(assignment);
+    totals[assignment.side] += getAssignmentScore(assignment);
   });
 
   return totals;
@@ -633,8 +639,74 @@ function render() {
   renderPlacements();
   renderTotals();
   renderRandomizerState();
+  renderPointsAnalysis();
   renderMatchday();
   fitAllCardText();
+}
+
+function renderPointsAnalysis() {
+  renderThesisPoints();
+  renderPiecePoints();
+}
+
+function renderThesisPoints() {
+  const rows = state.assignments.map((assignment) => ({
+    label: theses[assignment.id - 1],
+    meta: assignment.side && assignment.piece ? `${assignment.side === "white" ? "Weiß" : "Schwarz"} · ${getPieceName(assignment.piece)}` : "nicht gesetzt",
+    value: getAssignmentScore(assignment),
+  }));
+  renderSignedRows(thesisPointsChart, rows);
+}
+
+function renderPiecePoints() {
+  const totals = [];
+
+  ["white", "black"].forEach((side) => {
+    pieces.forEach((piece) => {
+      const value = state.assignments
+        .filter((assignment) => assignment.side === side && assignment.piece === piece.id)
+        .reduce((sum, assignment) => sum + getAssignmentScore(assignment), 0);
+
+      totals.push({
+        label: `${side === "white" ? "Weiß" : "Schwarz"} · ${piece.name}`,
+        meta: `${state.assignments.filter((assignment) => assignment.side === side && assignment.piece === piece.id).length} Thesen`,
+        value,
+      });
+    });
+  });
+
+  renderSignedRows(piecePointsChart, totals);
+}
+
+function renderSignedRows(target, rows) {
+  target.innerHTML = "";
+  const maxAbs = Math.max(...rows.map((row) => Math.abs(row.value)), 1);
+
+  rows.forEach((row) => {
+    const item = document.createElement("article");
+    item.className = "points-row";
+    item.innerHTML = `
+      <div class="points-label">
+        <strong>${escapeHtml(row.label)}</strong>
+        <span>${escapeHtml(row.meta)}</span>
+      </div>
+      <div class="signed-track">
+        <i class="zero-line"></i>
+        <b class="signed-bar ${row.value < 0 ? "negative" : "positive"}" style="${getSignedBarStyle(row.value, maxAbs)}"></b>
+      </div>
+      <strong class="points-value">${getSignedNumber(row.value)}</strong>
+    `;
+    target.appendChild(item);
+  });
+}
+
+function getSignedBarStyle(value, maxAbs) {
+  const magnitude = Math.min(50, (Math.abs(value) / maxAbs) * 50);
+  return value < 0 ? `left:${50 - magnitude}%;width:${magnitude}%` : `left:50%;width:${magnitude}%`;
+}
+
+function getPieceName(pieceId) {
+  return pieces.find((piece) => piece.id === pieceId)?.name || pieceId;
 }
 
 function renderMatchday() {
