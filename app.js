@@ -79,7 +79,7 @@ function createBoard() {
         cell.innerHTML = `
           <div class="cell-head">
             <div class="cell-value">${getDisplayValue(piece)}</div>
-            <strong class="field-score ${getScoreTone(getSlotScore(row, piece.id))}">${getSignedNumber(getSlotScore(row, piece.id))}</strong>
+            <strong class="field-score ${getScoreTone(getThesisSlotScore(row, piece.id))}">${getSignedNumber(getThesisSlotScore(row, piece.id))}</strong>
           </div>
           <div class="placed-list" data-slot="${row}-${piece.id}"></div>
         `;
@@ -95,7 +95,7 @@ function createBoard() {
 
 function renderFigureCell(cell, piece) {
   const image = state.figureImages[cell.dataset.figureSlot];
-  const score = getSlotScore(cell.dataset.side, piece.id);
+  const score = getPlayerScore(cell.dataset.side, piece.id);
   const scoreMarkup = `<strong class="field-watermark ${getScoreTone(score)}">${getSignedNumber(score)}</strong>`;
   if (image) {
     cell.classList.add("has-player-image");
@@ -516,20 +516,23 @@ function movePointerGhost(x, y) {
   pointerDrag.ghost.style.top = `${y}px`;
 }
 
-function getResultBonus(assignment) {
-  if (!assignment.side || !assignment.piece || !assignment.polarity) return 0;
-  return Number(state.results[assignment.side][assignment.piece]) || 0;
-}
-
 function getAssignmentScore(assignment) {
   if (!assignment.side || !assignment.piece || !assignment.polarity) return 0;
-  return getBaseScore(assignment) + getResultBonus(assignment);
+  return getBaseScore(assignment);
 }
 
-function getSlotScore(side, pieceId) {
+function getThesisSlotScore(side, pieceId) {
   return state.assignments
     .filter((assignment) => assignment.side === side && assignment.piece === pieceId)
     .reduce((sum, assignment) => sum + getAssignmentScore(assignment), 0);
+}
+
+function getPlayerScore(side, pieceId) {
+  return Number(state.results[side]?.[pieceId]) || 0;
+}
+
+function getSidePlayerScore(side) {
+  return pieces.reduce((sum, piece) => sum + getPlayerScore(side, piece.id), 0);
 }
 
 function getScoreTone(value) {
@@ -555,10 +558,15 @@ function getBaseScore(assignment) {
 }
 
 function calculateTotals() {
-  const totals = { white: 0, black: 0 };
+  const totals = {
+    white: getSidePlayerScore("white"),
+    black: getSidePlayerScore("black"),
+  };
 
   state.assignments.forEach((assignment) => {
-    totals[assignment.side] += getAssignmentScore(assignment);
+    if (assignment.side) {
+      totals[assignment.side] += getAssignmentScore(assignment);
+    }
   });
 
   return totals;
@@ -674,7 +682,7 @@ evaluationList.addEventListener("input", (event) => {
   fitAllCardText();
 });
 
-resultsGrid.addEventListener("input", (event) => {
+function handleResultSettingChange(event) {
   const input = event.target;
   if (!input.matches("[data-side][data-piece]")) return;
 
@@ -683,7 +691,10 @@ resultsGrid.addEventListener("input", (event) => {
   renderPlacements();
   renderTotals();
   fitAllCardText();
-});
+}
+
+resultsGrid.addEventListener("input", handleResultSettingChange);
+resultsGrid.addEventListener("change", handleResultSettingChange);
 
 Object.values(nameInputs).forEach((input) => {
   input.addEventListener("input", renderTotals);
