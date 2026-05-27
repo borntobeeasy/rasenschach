@@ -23,16 +23,10 @@ const state = {
     knightSwing: Math.random() > 0.5 ? 1 : -1,
   })),
   results: structuredClone(initialBonuses),
-  figureImages: {},
+  figureImages: loadFigureImages(),
   questionValue: null,
   knightCategories: [...initialKnightCategories],
   selectedKnightCategory: "",
-};
-
-const authState = {
-  token: localStorage.getItem("rasenschach.authToken") || "",
-  username: "",
-  mode: "login",
 };
 
 const pieceGrid = document.querySelector("#pieceGrid");
@@ -50,14 +44,6 @@ const randomKnightButton = document.querySelector("#randomKnightButton");
 const knightCategoryLabel = document.querySelector("#knightCategoryLabel");
 const storageGrid = document.querySelector("#storageGrid");
 const storageStatus = document.querySelector("#storageStatus");
-const authScreen = document.querySelector("#authScreen");
-const authForm = document.querySelector("#authForm");
-const authUsername = document.querySelector("#authUsername");
-const authPassword = document.querySelector("#authPassword");
-const authSubmitButton = document.querySelector("#authSubmitButton");
-const authStatus = document.querySelector("#authStatus");
-const accountName = document.querySelector("#accountName");
-const logoutButton = document.querySelector("#logoutButton");
 const nameInputs = {
   white: document.querySelector("#whiteName"),
   black: document.querySelector("#blackName"),
@@ -221,27 +207,31 @@ function isImageLikeUrl(value) {
   return /^(https?:|data:image\/|blob:|file:)/i.test(value);
 }
 
-async function apiRequest(path, options = {}) {
-  const response = await fetch(path, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(authState.token ? { Authorization: `Bearer ${authState.token}` } : {}),
-      ...(options.headers || {}),
-    },
-  });
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    if (response.status === 401) showAuthScreen();
-    throw new Error(payload.error || "Die Anfrage ist fehlgeschlagen.");
+function loadFigureImages() {
+  try {
+    return JSON.parse(localStorage.getItem("rasenschach.figureImages")) || {};
+  } catch {
+    return {};
   }
-
-  return payload;
 }
 
 function saveFigureImages() {
-  saveSection("images", { silent: true });
+  try {
+    localStorage.setItem(getStorageKey("images"), JSON.stringify(state.figureImages));
+  } catch {
+    // Large local images can exceed browser storage; the current board still keeps them in memory.
+  }
+}
+
+function getStorageKey(section) {
+  const keys = {
+    theses: "rasenschach.save.theses",
+    board: "rasenschach.save.board",
+    results: "rasenschach.save.results",
+    randomizer: "rasenschach.save.randomizer",
+    images: "rasenschach.figureImages",
+  };
+  return keys[section];
 }
 
 function getSectionPayload(section) {
@@ -269,32 +259,29 @@ function getSectionPayload(section) {
   return payloads[section]();
 }
 
-async function saveSection(section, options = {}) {
+function saveSection(section) {
   try {
-    await apiRequest(`/api/data/${section}`, {
-      method: "PUT",
-      body: JSON.stringify({ data: getSectionPayload(section) }),
-    });
-    if (!options.silent) setStorageStatus(`${getSectionLabel(section)} gespeichert.`);
-  } catch (error) {
-    setStorageStatus(`${getSectionLabel(section)} konnte nicht gespeichert werden: ${error.message}`);
+    localStorage.setItem(getStorageKey(section), JSON.stringify(getSectionPayload(section)));
+    setStorageStatus(`${getSectionLabel(section)} gespeichert.`);
+  } catch {
+    setStorageStatus(`${getSectionLabel(section)} konnte nicht gespeichert werden.`);
   }
 }
 
-async function loadSection(section, options = {}) {
-  try {
-    const payload = await apiRequest(`/api/data/${section}`);
-    const data = payload.data;
-    if (!data) {
-      if (!options.silent) setStorageStatus(`${getSectionLabel(section)} hat keinen gespeicherten Stand.`);
-      return;
-    }
+function loadSection(section) {
+  const raw = localStorage.getItem(getStorageKey(section));
+  if (!raw) {
+    setStorageStatus(`${getSectionLabel(section)} hat keinen gespeicherten Stand.`);
+    return;
+  }
 
+  try {
+    const data = JSON.parse(raw);
     applySectionData(section, data);
     render();
-    if (!options.silent) setStorageStatus(`${getSectionLabel(section)} geladen.`);
-  } catch (error) {
-    setStorageStatus(`${getSectionLabel(section)} konnte nicht geladen werden: ${error.message}`);
+    setStorageStatus(`${getSectionLabel(section)} geladen.`);
+  } catch {
+    setStorageStatus(`${getSectionLabel(section)} konnte nicht geladen werden.`);
   }
 }
 
@@ -345,21 +332,15 @@ function applySectionData(section, data) {
 
 }
 
-async function clearSection(section) {
-  try {
-    await apiRequest(`/api/data/${section}`, { method: "DELETE" });
+function clearSection(section) {
+  localStorage.removeItem(getStorageKey(section));
 
-    if (section === "images") {
-      state.figureImages = {};
-      render();
-    }
+  if (section === "images") {
+    state.figureImages = {};
+    render();
+  }
 
   setStorageStatus(`${getSectionLabel(section)} Speicher gelöscht.`);
-}
-
-  catch (error) {
-    setStorageStatus(`${getSectionLabel(section)} konnte nicht geloescht werden: ${error.message}`);
-  }
 }
 
 function getSectionLabel(section) {
@@ -374,83 +355,6 @@ function getSectionLabel(section) {
 
 function setStorageStatus(message) {
   storageStatus.textContent = message;
-}
-
-function setAuthStatus(message) {
-  authStatus.textContent = message;
-}
-
-function showAuthScreen() {
-  authState.token = "";
-  authState.username = "";
-  localStorage.removeItem("rasenschach.authToken");
-  authScreen.hidden = false;
-  accountName.textContent = "";
-}
-
-function hideAuthScreen() {
-  authScreen.hidden = true;
-  accountName.textContent = authState.username ? `Angemeldet: ${authState.username}` : "";
-}
-
-function setAuthMode(mode) {
-  authState.mode = mode;
-  document.querySelectorAll("[data-auth-mode]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.authMode === mode);
-  });
-  authSubmitButton.textContent = mode === "register" ? "Konto erstellen" : "Anmelden";
-  authPassword.autocomplete = mode === "register" ? "new-password" : "current-password";
-  setAuthStatus("");
-}
-
-async function handleAuthSubmit(event) {
-  event.preventDefault();
-  const username = authUsername.value.trim();
-  const password = authPassword.value;
-  const endpoint = authState.mode === "register" ? "/api/register" : "/api/login";
-
-  authSubmitButton.disabled = true;
-  setAuthStatus(authState.mode === "register" ? "Konto wird erstellt..." : "Anmeldung laeuft...");
-
-  try {
-    const payload = await apiRequest(endpoint, {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-    });
-    authState.token = payload.token;
-    authState.username = payload.username;
-    localStorage.setItem("rasenschach.authToken", authState.token);
-    hideAuthScreen();
-    await loadSavedState();
-    setStorageStatus("Gespeicherter Kontostand geladen.");
-  } catch (error) {
-    setAuthStatus(error.message);
-  } finally {
-    authSubmitButton.disabled = false;
-  }
-}
-
-async function restoreSession() {
-  if (!authState.token) {
-    showAuthScreen();
-    return;
-  }
-
-  try {
-    const payload = await apiRequest("/api/me");
-    authState.username = payload.username;
-    hideAuthScreen();
-    await loadSavedState();
-    setStorageStatus("Gespeicherter Kontostand geladen.");
-  } catch {
-    showAuthScreen();
-  }
-}
-
-async function loadSavedState() {
-  const sections = ["theses", "board", "results", "randomizer", "images"];
-  await Promise.all(sections.map((section) => loadSection(section, { silent: true })));
-  render();
 }
 
 function createThesisList() {
@@ -842,22 +746,10 @@ storageGrid.addEventListener("click", (event) => {
   if (action === "clear") clearSection(section);
 });
 
-authForm.addEventListener("submit", handleAuthSubmit);
-
-document.querySelectorAll("[data-auth-mode]").forEach((button) => {
-  button.addEventListener("click", () => setAuthMode(button.dataset.authMode));
-});
-
-logoutButton.addEventListener("click", () => {
-  showAuthScreen();
-  setStorageStatus("Abgemeldet.");
-});
-
 createBoard();
 createResultSettings();
 renderRandomizerState();
 render();
-restoreSession();
 
 randomQuestionButton.addEventListener("click", () => {
   const values = [-3, -2, -1, 1, 2, 3];
