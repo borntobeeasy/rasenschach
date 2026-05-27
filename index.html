@@ -7,12 +7,39 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <section class="auth-screen" id="authScreen" aria-label="Anmeldung">
+      <form class="auth-card" id="authForm">
+        <div>
+          <p class="eyebrow">Konto</p>
+          <h1>Rasenschach</h1>
+        </div>
+        <div class="auth-mode" role="tablist" aria-label="Anmeldemodus">
+          <button class="active" data-auth-mode="login" type="button">Anmelden</button>
+          <button data-auth-mode="register" type="button">Konto erstellen</button>
+        </div>
+        <label>
+          Nutzername
+          <input id="authUsername" autocomplete="username" required minlength="3" />
+        </label>
+        <label>
+          Passwort
+          <input id="authPassword" type="password" autocomplete="current-password" required minlength="6" />
+        </label>
+        <button class="auth-submit" id="authSubmitButton" type="submit">Anmelden</button>
+        <p class="auth-status" id="authStatus" aria-live="polite"></p>
+      </form>
+    </section>
+
     <main class="app-shell">
       <section class="board-panel" aria-label="Rasenschach Spielfeld">
         <header class="topbar">
           <div>
             <p class="eyebrow">Draftboard</p>
             <h1>Rasenschach</h1>
+          </div>
+          <div class="account-bar">
+            <span id="accountName"></span>
+            <button id="logoutButton" type="button">Abmelden</button>
           </div>
           <div class="match-controls">
             <label>

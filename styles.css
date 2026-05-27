@@ -32,6 +32,10 @@ body {
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 button,
 input,
 select {
@@ -46,6 +50,77 @@ textarea {
   width: min(1440px, calc(100% - 32px));
   margin: 0 auto;
   padding: 28px 0 40px;
+}
+
+.auth-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    rgba(247, 244, 234, 0.96);
+  background-size: 24px 24px;
+}
+
+.auth-card {
+  display: grid;
+  gap: 16px;
+  width: min(420px, 100%);
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+.auth-mode {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.auth-mode button,
+.auth-submit,
+.account-bar button {
+  min-height: 38px;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.auth-mode button.active,
+.auth-submit {
+  background: var(--ink);
+  color: var(--white);
+}
+
+.auth-status {
+  min-height: 1.2em;
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.account-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.account-bar button {
+  min-height: 34px;
+  padding: 6px 10px;
 }
 
 .board-panel {
@@ -550,10 +625,6 @@ textarea {
 #openMatchdayButton {
   background: var(--white);
   color: var(--ink);
-}
-
-[hidden] {
-  display: none !important;
 }
 
 .close-button {
