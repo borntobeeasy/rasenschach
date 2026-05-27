@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Rasenschach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Sora:wght@400;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -37,6 +40,7 @@
 
         <div class="game-layout">
           <section class="scoreboard" aria-label="Spielstand">
+            <p class="broadcast-label">Live Match Feed</p>
             <div class="score-card white">
               <span id="whiteLabel">Spieler A</span>
               <strong id="whiteTotal">0</strong>
@@ -53,6 +57,10 @@
 
           <section class="thesis-panel" aria-label="Thesen einordnen">
             <div class="thesis-head">
+              <div>
+                <p class="eyebrow">Draft Zone</p>
+                <h2>Pick Board</h2>
+              </div>
               <div class="action-buttons">
                 <button id="openSettingsButton" type="button">Einstellungen</button>
                 <button id="openMatchdayButton" type="button">Spieltag</button>

@@ -1,21 +1,24 @@
 :root {
-  color-scheme: light;
-  --paper: #f3f0e8;
-  --ink: #070707;
-  --muted: #5f6470;
-  --line: #d4d7dc;
-  --grid: rgba(7, 7, 7, 0.08);
-  --accent: #d71920;
-  --yellow: #f2c94c;
-  --white: #fffefa;
-  --black: #101010;
+  color-scheme: dark;
+  --paper: #0b1020;
+  --ink: #ffffff;
+  --muted: #aab5d8;
+  --line: rgba(255, 255, 255, 0.18);
+  --grid: rgba(255, 255, 255, 0.075);
+  --accent: #ff3b5c;
+  --yellow: #f4c542;
+  --white: #f8fbff;
+  --black: #05070e;
   --green: #00843d;
-  --red: #d71920;
-  --blue: #2457ff;
-  --gold: #c9a646;
-  --zero: #67707b;
+  --red: #ff3b5c;
+  --blue: #1e5eff;
+  --gold: #f4c542;
+  --cyan: #36e2ff;
+  --zero: #8b95b8;
   --cell-size: clamp(70px, min(8.4vw, 17.5vh), 132px);
-  --shadow: 0 22px 55px rgba(7, 7, 7, 0.16);
+  --shadow: 0 28px 75px rgba(0, 0, 0, 0.46);
+  --event-font: "Sora", "Segoe UI", Arial, sans-serif;
+  --headline-font: "Anton", "Arial Narrow", Impact, sans-serif;
 }
 
 * {
@@ -23,19 +26,155 @@
 }
 
 body {
+  position: relative;
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 14% 12%, rgba(215, 25, 32, 0.14), transparent 25%),
-    radial-gradient(circle at 88% 9%, rgba(36, 87, 255, 0.13), transparent 24%),
-    linear-gradient(135deg, rgba(0, 132, 61, 0.12), transparent 32%),
-    linear-gradient(28deg, transparent 0 52%, rgba(201, 166, 70, 0.16) 52% 54%, transparent 54%),
-    linear-gradient(var(--grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
-    var(--paper);
-  background-size: 24px 24px;
+    radial-gradient(circle at 50% -10%, rgba(54, 226, 255, 0.22), transparent 28%),
+    radial-gradient(circle at 12% 18%, rgba(255, 59, 92, 0.28), transparent 30%),
+    radial-gradient(circle at 86% 16%, rgba(30, 94, 255, 0.28), transparent 28%),
+    linear-gradient(115deg, rgba(244, 197, 66, 0.12), transparent 24%),
+    linear-gradient(180deg, #080b17 0%, #0b1020 44%, #05070e 100%);
   color: var(--ink);
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: var(--event-font);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(72deg, transparent 0 18%, rgba(255, 255, 255, 0.08) 19%, transparent 25%),
+    linear-gradient(108deg, transparent 0 63%, rgba(54, 226, 255, 0.1) 64%, transparent 72%),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: auto, auto, 34px 34px, 34px 34px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 92%);
+  pointer-events: none;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.035), transparent),
+    radial-gradient(circle at 50% 112%, rgba(0, 132, 61, 0.2), transparent 34%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+body,
+.board-panel,
+.settings-dialog {
+  background-blend-mode: screen, normal;
+}
+
+.settings-dialog {
+  color: var(--ink);
+}
+
+body {
+  color: var(--ink);
+}
+
+@supports (backdrop-filter: blur(18px)) {
+  .board-panel,
+  .thesis-panel,
+  .score-card,
+  .settings-dialog {
+    backdrop-filter: blur(18px);
+  }
+}
+
+@keyframes stadiumSweep {
+  0% {
+    transform: translateX(-22%) rotate(-10deg);
+    opacity: 0.24;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(22%) rotate(-10deg);
+    opacity: 0.24;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(54, 226, 255, 0);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(54, 226, 255, 0.38);
+  }
+}
+
+body {
+  background-color: var(--paper);
+}
+
+body .app-shell {
+  isolation: isolate;
+}
+
+body .app-shell::before {
+  content: "";
+  position: fixed;
+  top: -25vh;
+  left: 4vw;
+  z-index: -1;
+  width: 92vw;
+  height: 58vh;
+  background:
+    linear-gradient(82deg, transparent, rgba(255, 255, 255, 0.16), transparent 58%),
+    linear-gradient(103deg, transparent, rgba(30, 94, 255, 0.16), transparent 64%);
+  filter: blur(10px);
+  animation: stadiumSweep 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+body .app-shell::after {
+  content: "26";
+  position: fixed;
+  right: -4vw;
+  bottom: -8vh;
+  z-index: -1;
+  color: rgba(255, 255, 255, 0.035);
+  font-family: var(--headline-font);
+  font-size: min(42vw, 34rem);
+  line-height: 0.8;
+  pointer-events: none;
+}
+
+body {
+  min-height: 100vh;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  letter-spacing: 0;
+}
+
+body {
+  background-size: auto;
 }
 
 [hidden] {
@@ -62,9 +201,10 @@ textarea {
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(215, 25, 32, 0.08), transparent 24%, transparent 76%, rgba(36, 87, 255, 0.1)),
-    rgba(255, 254, 250, 0.94);
-  border: 2px solid var(--ink);
+    linear-gradient(120deg, rgba(255, 59, 92, 0.14), transparent 22%, transparent 74%, rgba(30, 94, 255, 0.18)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.045)),
+    rgba(9, 13, 28, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: var(--shadow);
 }
 
@@ -79,7 +219,8 @@ textarea {
   top: -38px;
   right: clamp(12px, 4vw, 48px);
   z-index: 1;
-  color: rgba(7, 7, 7, 0.07);
+  color: rgba(255, 255, 255, 0.08);
+  font-family: var(--headline-font);
   font-size: clamp(7rem, 18vw, 18rem);
   font-weight: 950;
   letter-spacing: 0;
@@ -104,9 +245,9 @@ textarea {
   position: absolute;
   width: clamp(260px, 33vw, 560px);
   height: clamp(165px, 21vw, 350px);
-  border: 3px solid rgba(7, 7, 7, 0.18);
-  filter: saturate(1.06);
-  opacity: 0.19;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  filter: saturate(1.12) blur(0.2px);
+  opacity: 0.16;
   transform: rotate(-10deg);
 }
 
@@ -149,11 +290,12 @@ textarea {
 
 .eyebrow {
   margin: 0 0 4px;
-  color: var(--blue);
+  color: var(--cyan);
   font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  text-shadow: 0 0 18px rgba(54, 226, 255, 0.45);
 }
 
 h1,
@@ -164,13 +306,21 @@ h2 {
 
 h1 {
   font-size: clamp(2rem, 4vw, 4.25rem);
-  font-weight: 950;
-  letter-spacing: 0;
+  font-family: var(--headline-font);
+  font-weight: 400;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  text-shadow:
+    0 0 22px rgba(30, 94, 255, 0.34),
+    0 5px 0 rgba(0, 0, 0, 0.7);
 }
 
 h2 {
   font-size: 1.4rem;
+  font-family: var(--headline-font);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .brand-strip {
@@ -185,10 +335,14 @@ h2 {
   min-height: 26px;
   display: inline-flex;
   align-items: center;
-  border: 2px solid var(--ink);
-  background: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background:
+    linear-gradient(135deg, rgba(54, 226, 255, 0.22), transparent 48%),
+    #05070e;
   color: var(--white);
-  box-shadow: 3px 3px 0 var(--gold);
+  box-shadow:
+    0 0 20px rgba(54, 226, 255, 0.2),
+    3px 3px 0 var(--gold);
   font-size: 0.72rem;
   font-weight: 950;
   line-height: 1;
@@ -198,8 +352,8 @@ h2 {
 
 .theme-song.secondary {
   background: var(--yellow);
-  color: var(--ink);
-  box-shadow: 3px 3px 0 var(--ink);
+  color: #05070e;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.86);
 }
 
 .match-controls {
@@ -221,17 +375,18 @@ label {
 input,
 select {
   min-height: 38px;
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 6px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--ink);
   padding: 8px 10px;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.14);
 }
 
 textarea {
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 6px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--ink);
   padding: 8px 10px;
   resize: vertical;
@@ -250,34 +405,69 @@ textarea {
   align-content: start;
 }
 
+.broadcast-label {
+  margin: 0;
+  border-left: 4px solid var(--accent);
+  color: var(--cyan);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  padding-left: 8px;
+  text-transform: uppercase;
+}
+
 .score-card {
   min-height: 112px;
   display: grid;
   align-content: center;
   gap: 8px;
   padding: 18px;
-  border: 2px solid var(--ink);
-  box-shadow: 5px 5px 0 var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 18px 36px rgba(0, 0, 0, 0.35);
+}
+
+.score-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12), transparent 42%),
+    repeating-linear-gradient(90deg, transparent 0 12px, rgba(255, 255, 255, 0.04) 12px 13px);
+  pointer-events: none;
 }
 
 .score-card.black {
-  background: var(--black);
+  background:
+    linear-gradient(135deg, rgba(30, 94, 255, 0.28), transparent 50%),
+    rgba(0, 0, 0, 0.74);
   color: var(--white);
 }
 
 .score-card.white {
   background:
-    linear-gradient(135deg, rgba(0, 132, 61, 0.15), transparent 42%),
-    var(--white);
+    linear-gradient(135deg, rgba(244, 197, 66, 0.24), transparent 42%),
+    rgba(255, 255, 255, 0.12);
+  color: var(--white);
 }
 
 .score-card span {
+  position: relative;
   font-weight: 700;
+  text-transform: uppercase;
 }
 
 .score-card strong {
-  font-size: 3rem;
+  position: relative;
+  font-family: var(--headline-font);
+  font-size: 4rem;
+  font-weight: 400;
   line-height: 1;
+  text-shadow: 0 0 24px rgba(244, 197, 66, 0.34);
 }
 
 .field-wrap {
@@ -293,19 +483,22 @@ textarea {
   grid-template-rows: repeat(4, var(--cell-size));
   width: calc(var(--cell-size) * 5);
   height: calc(var(--cell-size) * 4);
-  border: 4px solid var(--yellow);
-  outline: 2px solid var(--ink);
+  border: 2px solid rgba(244, 197, 66, 0.86);
+  outline: 1px solid rgba(255, 255, 255, 0.18);
   background:
-    radial-gradient(circle at 50% 50%, rgba(201, 166, 70, 0.14), transparent 34%),
-    linear-gradient(120deg, rgba(215, 25, 32, 0.22), transparent 26%, transparent 74%, rgba(36, 87, 255, 0.2)),
-    linear-gradient(90deg, var(--green) 0 3%, transparent 3% 97%, var(--red) 97%),
-    var(--white);
-  box-shadow: var(--shadow);
+    radial-gradient(circle at 50% -8%, rgba(255, 255, 255, 0.36), transparent 24%),
+    linear-gradient(120deg, rgba(255, 59, 92, 0.22), transparent 26%, transparent 74%, rgba(30, 94, 255, 0.26)),
+    linear-gradient(90deg, rgba(0, 132, 61, 0.28) 0 3%, transparent 3% 97%, rgba(255, 59, 92, 0.32) 97%),
+    linear-gradient(180deg, rgba(10, 64, 44, 0.78), rgba(9, 28, 28, 0.82));
+  box-shadow:
+    0 0 0 7px rgba(255, 255, 255, 0.045),
+    0 0 42px rgba(30, 94, 255, 0.28),
+    var(--shadow);
 }
 
 .grid-cell {
   position: relative;
-  border: 1px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 8px;
   overflow: hidden;
   min-width: 0;
@@ -317,7 +510,8 @@ textarea {
   display: grid;
   place-items: center;
   background:
-    linear-gradient(145deg, rgba(36, 87, 255, 0.18), transparent 50%),
+    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.17), transparent 34%),
+    linear-gradient(145deg, rgba(30, 94, 255, 0.28), transparent 50%),
     var(--black);
   color: var(--white);
   font-weight: 800;
@@ -364,9 +558,10 @@ textarea {
 
 .piece-cell.light {
   background:
-    linear-gradient(145deg, rgba(242, 201, 76, 0.28), transparent 48%),
-    var(--white);
-  color: var(--ink);
+    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.35), transparent 34%),
+    linear-gradient(145deg, rgba(244, 197, 66, 0.28), transparent 48%),
+    rgba(255, 255, 255, 0.9);
+  color: #05070e;
 }
 
 .piece-svg {
@@ -374,12 +569,18 @@ textarea {
   z-index: 1;
   display: block;
   width: 66%;
-  max-width: 86px;
+  max-width: 90px;
   height: auto;
+  filter:
+    drop-shadow(0 0 9px rgba(255, 255, 255, 0.26))
+    drop-shadow(0 10px 10px rgba(0, 0, 0, 0.42));
 }
 
 .piece-cell:not(.light) .piece-svg {
-  filter: invert(1);
+  filter:
+    invert(1)
+    drop-shadow(0 0 10px rgba(54, 226, 255, 0.34))
+    drop-shadow(0 12px 10px rgba(0, 0, 0, 0.45));
 }
 
 .piece-corner {
@@ -476,11 +677,12 @@ textarea {
   border-top: 3px solid var(--blue);
   border-bottom: 3px solid var(--accent);
   background:
-    linear-gradient(135deg, rgba(0, 132, 61, 0.12), transparent 32%),
-    linear-gradient(225deg, rgba(36, 87, 255, 0.1), transparent 34%),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.16), transparent 26%),
+    linear-gradient(135deg, rgba(0, 132, 61, 0.28), transparent 32%),
+    linear-gradient(225deg, rgba(30, 94, 255, 0.2), transparent 34%),
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px),
-    rgba(255, 255, 255, 0.88);
+    rgba(6, 18, 22, 0.62);
   background-size: 18px 18px;
   isolation: isolate;
 }
@@ -495,10 +697,12 @@ textarea {
 
 .drop-cell.drag-over {
   background:
+    radial-gradient(circle at 50% 50%, rgba(54, 226, 255, 0.28), transparent 38%),
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px),
-    #fff5cf;
+    rgba(20, 38, 72, 0.9);
   background-size: 18px 18px;
+  animation: pulseGlow 900ms ease-in-out infinite;
 }
 
 .drop-cell[data-side="white"] {
@@ -510,10 +714,12 @@ textarea {
 }
 
 .cell-value {
-  color: var(--ink);
+  color: var(--white);
+  font-family: var(--headline-font);
   font-size: clamp(1rem, calc(var(--cell-size) * 0.18), 1.8rem);
-  font-weight: 900;
+  font-weight: 400;
   line-height: 1;
+  text-shadow: 0 0 12px rgba(54, 226, 255, 0.32);
 }
 
 .chip-score {
@@ -565,11 +771,11 @@ textarea {
   height: 100%;
   min-width: 0;
   min-height: 0;
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.32);
   background:
-    linear-gradient(180deg, rgba(242, 201, 76, 0.18), transparent 45%),
-    var(--white);
-  color: var(--ink);
+    linear-gradient(180deg, rgba(244, 197, 66, 0.22), transparent 45%),
+    rgba(255, 255, 255, 0.9);
+  color: #05070e;
   cursor: grab;
   font-size: clamp(0.52rem, 0.74vw, 0.7rem);
   font-weight: 800;
@@ -579,6 +785,8 @@ textarea {
   text-align: center;
   pointer-events: auto;
   isolation: isolate;
+  animation: cardIn 180ms ease-out;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.24);
 }
 
 .chip-score {
@@ -633,9 +841,9 @@ textarea {
   place-items: center;
   width: 128px;
   min-height: 42px;
-  border: 2px solid var(--ink);
-  background: var(--white);
-  color: var(--ink);
+  border: 1px solid rgba(54, 226, 255, 0.72);
+  background: rgba(11, 16, 32, 0.94);
+  color: var(--white);
   font-weight: 900;
   overflow-wrap: anywhere;
   padding: 6px;
@@ -646,13 +854,15 @@ textarea {
 
 .thesis-panel {
   min-height: 528px;
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   padding: 16px;
   background:
-    linear-gradient(180deg, rgba(36, 87, 255, 0.1), transparent 30%),
-    rgba(255, 254, 250, 0.86);
-  box-shadow: 5px 5px 0 var(--ink);
+    linear-gradient(180deg, rgba(30, 94, 255, 0.18), transparent 30%),
+    rgba(255, 255, 255, 0.07);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 22px 44px rgba(0, 0, 0, 0.34);
 }
 
 .action-buttons {
@@ -667,9 +877,9 @@ textarea {
 #openMatchdayButton,
 .close-button {
   min-height: 38px;
-  border: 1px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.26);
   border-radius: 6px;
-  background: var(--ink);
+  background: var(--black);
   color: var(--white);
   padding: 8px 12px;
   cursor: pointer;
@@ -677,11 +887,26 @@ textarea {
 
 #openSettingsButton,
 #openMatchdayButton {
-  background: var(--yellow);
-  color: var(--ink);
-  box-shadow: 3px 3px 0 var(--ink);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 42%),
+    var(--yellow);
+  color: #05070e;
+  box-shadow:
+    0 0 20px rgba(244, 197, 66, 0.32),
+    3px 3px 0 rgba(0, 0, 0, 0.78);
   font-weight: 900;
   text-transform: uppercase;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+
+#openSettingsButton:hover,
+#openMatchdayButton:hover {
+  box-shadow:
+    0 0 28px rgba(244, 197, 66, 0.48),
+    4px 5px 0 rgba(0, 0, 0, 0.85);
+  transform: translateY(-2px);
 }
 
 .close-button {
@@ -706,11 +931,13 @@ textarea {
   place-items: center;
   min-height: 0;
   height: var(--cell-size);
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 6px;
   background:
-    linear-gradient(135deg, rgba(215, 25, 32, 0.1), transparent 45%),
-    var(--white);
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.25), transparent 34%),
+    linear-gradient(135deg, rgba(255, 59, 92, 0.18), transparent 45%),
+    rgba(255, 255, 255, 0.09);
+  color: var(--white);
   padding: 8px;
   cursor: grab;
   font-weight: 900;
@@ -723,9 +950,11 @@ textarea {
 }
 
 .thesis-card:hover {
-  border-color: var(--ink);
-  box-shadow: 0 8px 20px rgba(25, 22, 17, 0.08);
-  transform: translateY(-1px);
+  border-color: rgba(54, 226, 255, 0.78);
+  box-shadow:
+    0 0 28px rgba(54, 226, 255, 0.24),
+    0 16px 30px rgba(0, 0, 0, 0.28);
+  transform: translateY(-4px) scale(1.02);
 }
 
 .thesis-card .thesis-title {
@@ -741,7 +970,7 @@ textarea {
 }
 
 .thesis-card.assigned {
-  border-color: var(--ink);
+  border-color: rgba(255, 255, 255, 0.4);
   box-shadow: inset 0 -4px 0 var(--blue);
 }
 
@@ -777,14 +1006,15 @@ textarea {
 .neutral-button {
   flex: 1;
   min-height: 30px;
-  border: 1px solid var(--ink);
-  background: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
   cursor: pointer;
   font-weight: 900;
 }
 
 .polarity-button.active {
-  background: var(--ink);
+  background: var(--blue);
   color: var(--white);
 }
 
@@ -796,14 +1026,14 @@ textarea {
 .settings-dialog {
   width: min(980px, calc(100% - 28px));
   max-height: min(760px, calc(100vh - 28px));
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 8px;
   background:
-    radial-gradient(circle at 18% 8%, rgba(215, 25, 32, 0.13), transparent 26%),
-    radial-gradient(circle at 90% 12%, rgba(36, 87, 255, 0.14), transparent 26%),
+    radial-gradient(circle at 18% 8%, rgba(255, 59, 92, 0.22), transparent 26%),
+    radial-gradient(circle at 90% 12%, rgba(30, 94, 255, 0.24), transparent 26%),
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px),
-    var(--paper);
+    rgba(11, 16, 32, 0.96);
   background-size: 24px 24px;
   padding: 0;
 }
@@ -816,7 +1046,7 @@ textarea {
 }
 
 .settings-dialog::backdrop {
-  background: rgba(12, 12, 12, 0.52);
+  background: rgba(2, 4, 10, 0.78);
 }
 
 .settings-shell {
@@ -841,9 +1071,9 @@ textarea {
 .evaluation-card {
   display: grid;
   gap: 8px;
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.08);
   padding: 10px;
 }
 
@@ -876,9 +1106,9 @@ textarea {
 .storage-card {
   display: grid;
   gap: 8px;
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.08);
   padding: 12px;
 }
 
@@ -896,17 +1126,17 @@ textarea {
 
 .storage-card button {
   min-height: 34px;
-  border: 1px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 6px;
-  background: var(--white);
-  color: var(--ink);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
   cursor: pointer;
   font-size: 0.82rem;
   font-weight: 800;
 }
 
 .storage-card button:first-child {
-  background: var(--ink);
+  background: var(--blue);
   color: var(--white);
 }
 
@@ -918,9 +1148,9 @@ textarea {
 .randomizer-card {
   display: grid;
   gap: 10px;
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.08);
   padding: 12px;
 }
 
@@ -936,9 +1166,9 @@ textarea {
 
 .randomizer-card button {
   min-height: 36px;
-  border: 1px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 6px;
-  background: var(--ink);
+  background: var(--blue);
   color: var(--white);
   cursor: pointer;
   font-weight: 800;
@@ -947,9 +1177,9 @@ textarea {
 .result-group {
   display: grid;
   gap: 8px;
-  border: 2px solid var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  background: var(--white);
+  background: rgba(255, 255, 255, 0.08);
   padding: 10px;
 }
 
