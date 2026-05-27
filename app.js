@@ -227,6 +227,7 @@ function getStorageKey(section) {
   const keys = {
     theses: "rasenschach.save.theses",
     board: "rasenschach.save.board",
+    names: "rasenschach.save.names",
     results: "rasenschach.save.results",
     randomizer: "rasenschach.save.randomizer",
     images: "rasenschach.figureImages",
@@ -242,6 +243,12 @@ function getSectionPayload(section) {
     }),
     board: () => ({
       positions: state.assignments.map(({ id, side, piece, knightSwing }) => ({ id, side, piece, knightSwing })),
+      names: {
+        white: nameInputs.white.value,
+        black: nameInputs.black.value,
+      },
+    }),
+    names: () => ({
       names: {
         white: nameInputs.white.value,
         black: nameInputs.black.value,
@@ -312,6 +319,13 @@ function applySectionData(section, data) {
     }
   }
 
+    if (section === "names") {
+      if (data.names) {
+        nameInputs.white.value = data.names.white || nameInputs.white.value;
+        nameInputs.black.value = data.names.black || nameInputs.black.value;
+      }
+    }
+
     if (section === "results") {
       state.results = structuredClone(initialBonuses);
       Object.entries(data.results || {}).forEach(([side, values]) => {
@@ -347,6 +361,7 @@ function getSectionLabel(section) {
   return {
     theses: "Thesen",
     board: "Brett",
+    names: "Namen",
     results: "Ergebnisse",
     randomizer: "Randomizer",
     images: "Fotos",

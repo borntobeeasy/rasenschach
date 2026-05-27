@@ -409,49 +409,60 @@ textarea {
   position: relative;
   display: grid;
   justify-items: center;
-  width: min(760px, 100%);
-  padding-top: 16px;
+  width: min(920px, 100%);
+  padding-top: 20px;
 }
 
 .score-status {
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 0;
   z-index: 3;
-  min-width: 108px;
-  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 62px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 18px 18px 24px 24px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 60%),
+    radial-gradient(circle at 50% 18%, rgba(244, 197, 66, 0.4), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 55%),
     #05070e;
-  color: var(--white);
-  font-size: 0.78rem;
-  font-weight: 900;
+  color: var(--gold);
+  font-family: var(--headline-font);
+  font-size: 1.45rem;
+  font-weight: 400;
   line-height: 1;
-  padding: 7px 16px;
   text-align: center;
   text-transform: uppercase;
-  transform: translateY(9px);
+  transform: translateX(-50%);
   box-shadow:
-    0 0 18px rgba(54, 226, 255, 0.22),
-    0 8px 16px rgba(0, 0, 0, 0.36);
+    inset 0 0 0 3px rgba(244, 197, 66, 0.08),
+    0 12px 18px rgba(0, 0, 0, 0.44);
 }
 
 .score-row {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(140px, 1fr) auto minmax(140px, 1fr);
+  grid-template-columns: minmax(150px, 1fr) minmax(170px, 230px) minmax(150px, 1fr);
   align-items: stretch;
   width: 100%;
-  min-height: 72px;
+  min-height: 76px;
   filter: drop-shadow(0 22px 24px rgba(0, 0, 0, 0.42));
 }
 
 .score-row::before {
   content: "";
   position: absolute;
-  inset: 12px 10px 10px;
+  inset: 0;
   z-index: 0;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 0 0 34px 34px;
+  background:
+    linear-gradient(90deg, #111216 0 36%, #dfc576 36% 64%, #111216 64% 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -12px 18px rgba(0, 0, 0, 0.22);
 }
 
 .score-team,
@@ -465,11 +476,10 @@ textarea {
   align-items: center;
   gap: 10px;
   min-width: 0;
-  margin-top: 14px;
-  padding: 0 14px;
+  min-height: 76px;
+  padding: 0 clamp(18px, 3vw, 42px);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 58%),
-    #05070e;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 58%);
   color: var(--white);
   font-size: clamp(0.9rem, 1.5vw, 1.28rem);
   font-weight: 900;
@@ -478,14 +488,12 @@ textarea {
 
 .score-team-white {
   justify-content: flex-start;
-  border-radius: 18px 0 0 18px;
-  box-shadow: inset 5px 0 0 var(--gold);
+  border-radius: 0 0 0 34px;
 }
 
 .score-team-black {
   justify-content: flex-end;
-  border-radius: 0 18px 18px 0;
-  box-shadow: inset -5px 0 0 var(--blue);
+  border-radius: 0 0 34px 0;
 }
 
 .team-name {
@@ -496,14 +504,7 @@ textarea {
 }
 
 .team-flag {
-  flex: 0 0 auto;
-  width: 48px;
-  height: 34px;
-  border: 3px solid rgba(255, 255, 255, 0.9);
-  border-radius: 8px;
-  box-shadow:
-    0 0 0 2px rgba(0, 0, 0, 0.7),
-    0 0 18px rgba(255, 255, 255, 0.18);
+  display: none;
 }
 
 .team-flag-white {
@@ -522,18 +523,17 @@ textarea {
   grid-template-columns: auto auto auto;
   align-items: center;
   justify-content: center;
-  min-width: clamp(160px, 18vw, 238px);
-  margin: 0 -2px;
-  padding: 6px 22px 2px;
-  border-radius: 4px;
+  min-width: 0;
+  min-height: 76px;
+  margin: 0;
+  padding: 3px 24px 0;
+  border-radius: 0;
   background:
-    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.34), transparent 36%),
-    linear-gradient(90deg, #ffeeb4, var(--gold) 50%, #ffeeb4);
+    radial-gradient(circle at 50% 4%, rgba(255, 255, 255, 0.34), transparent 32%),
+    linear-gradient(90deg, #ddc06d, #f0dc9b 48%, #ddc06d);
   color: #05070e;
-  clip-path: polygon(8% 0, 92% 0, 100% 18%, 100% 82%, 92% 100%, 8% 100%, 0 82%, 0 18%);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.48),
-    0 0 32px rgba(244, 197, 66, 0.32);
+  clip-path: none;
+  box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.12);
 }
 
 .score-core strong,
@@ -552,14 +552,14 @@ textarea {
 
 .score-mark {
   position: absolute;
-  bottom: -10px;
+  top: 50%;
   left: 50%;
   z-index: 2;
-  display: grid;
+  display: none;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 2px solid rgba(255, 255, 255, 0.78);
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 25%, rgba(255, 255, 255, 0.24), transparent 36%),
@@ -568,18 +568,8 @@ textarea {
   font-family: var(--headline-font);
   font-size: 1.05rem;
   line-height: 1;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   box-shadow: 0 0 18px rgba(0, 0, 0, 0.5);
-}
-
-.score-caption {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 0.64rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  text-align: center;
 }
 
 .field-wrap {

@@ -21,19 +21,15 @@
           <div>
             <p class="eyebrow">World stage 2026</p>
             <h1>Rasenschach</h1>
-            <div class="brand-strip" aria-label="WM 2026 Designmotiv">
-              <span class="theme-song">WE ARE 26</span>
-              <span class="theme-song secondary">Dai Dai Matchboard</span>
-            </div>
           </div>
-          <div class="match-controls">
+          <div class="match-controls top-name-controls" hidden>
             <label>
               Weiß
-              <input id="whiteName" value="Spieler A" />
+              <input id="oldWhiteName" value="Spieler A" />
             </label>
             <label>
               Schwarz
-              <input id="blackName" value="Spieler B" />
+              <input id="oldBlackName" value="Spieler B" />
             </label>
           </div>
         </header>
@@ -41,7 +37,7 @@
         <div class="game-layout">
           <section class="scoreboard" aria-label="Spielstand">
             <div class="scorebug" aria-label="Live Spielstand">
-              <div class="score-status">Full-Time</div>
+              <div class="score-status">Cup</div>
               <div class="score-row">
                 <div class="score-team score-team-white">
                   <span class="team-flag team-flag-white" aria-hidden="true"></span>
@@ -58,7 +54,6 @@
                   <span class="team-flag team-flag-black" aria-hidden="true"></span>
                 </div>
               </div>
-              <p class="score-caption">Rasenschach World Stage · Round of 16</p>
             </div>
           </section>
 
@@ -95,6 +90,23 @@
           </div>
           <button class="close-button" id="closeSettingsButton" type="button" aria-label="Popup schließen">×</button>
         </header>
+
+        <section class="results-panel" aria-label="Teamnamen einstellen">
+          <div>
+            <p class="eyebrow">Teams</p>
+            <h2>Spielanzeige</h2>
+          </div>
+          <div class="match-controls">
+            <label>
+              Weiß
+              <input id="whiteName" value="Spieler A" />
+            </label>
+            <label>
+              Schwarz
+              <input id="blackName" value="Spieler B" />
+            </label>
+          </div>
+        </section>
 
         <section class="results-panel" aria-label="Thesen auswerten">
           <div>
@@ -154,6 +166,15 @@
             <article class="storage-card" data-storage-section="board">
               <strong>Brett</strong>
               <span>Positionen der Thesen</span>
+              <div>
+                <button data-storage-action="save" type="button">Speichern</button>
+                <button data-storage-action="load" type="button">Laden</button>
+                <button data-storage-action="clear" type="button">Löschen</button>
+              </div>
+            </article>
+            <article class="storage-card" data-storage-section="names">
+              <strong>Namen</strong>
+              <span>Teamnamen der Spielanzeige</span>
               <div>
                 <button data-storage-action="save" type="button">Speichern</button>
                 <button data-storage-action="load" type="button">Laden</button>
