@@ -40,14 +40,25 @@
 
         <div class="game-layout">
           <section class="scoreboard" aria-label="Spielstand">
-            <p class="broadcast-label">Live Match Feed</p>
-            <div class="score-card white">
-              <span id="whiteLabel">Spieler A</span>
-              <strong id="whiteTotal">0</strong>
-            </div>
-            <div class="score-card black">
-              <span id="blackLabel">Spieler B</span>
-              <strong id="blackTotal">0</strong>
+            <div class="scorebug" aria-label="Live Spielstand">
+              <div class="score-status">Full-Time</div>
+              <div class="score-row">
+                <div class="score-team score-team-white">
+                  <span class="team-flag team-flag-white" aria-hidden="true"></span>
+                  <span class="team-name" id="whiteLabel">Spieler A</span>
+                </div>
+                <div class="score-core" aria-label="Spielstand">
+                  <strong id="whiteTotal">0</strong>
+                  <span class="score-separator">:</span>
+                  <strong id="blackTotal">0</strong>
+                  <span class="score-mark" aria-hidden="true">26</span>
+                </div>
+                <div class="score-team score-team-black">
+                  <span class="team-name" id="blackLabel">Spieler B</span>
+                  <span class="team-flag team-flag-black" aria-hidden="true"></span>
+                </div>
+              </div>
+              <p class="score-caption">Rasenschach World Stage · Round of 16</p>
             </div>
           </section>
 
