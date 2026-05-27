@@ -62,7 +62,7 @@ textarea {
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(215, 25, 32, 0.14), transparent 21%, transparent 79%, rgba(36, 87, 255, 0.16)),
+    linear-gradient(90deg, rgba(215, 25, 32, 0.08), transparent 24%, transparent 76%, rgba(36, 87, 255, 0.1)),
     rgba(255, 254, 250, 0.94);
   border: 2px solid var(--ink);
   box-shadow: var(--shadow);
@@ -78,8 +78,8 @@ textarea {
   position: absolute;
   top: -38px;
   right: clamp(12px, 4vw, 48px);
-  z-index: 0;
-  color: rgba(7, 7, 7, 0.055);
+  z-index: 1;
+  color: rgba(7, 7, 7, 0.07);
   font-size: clamp(7rem, 18vw, 18rem);
   font-weight: 950;
   letter-spacing: 0;
@@ -89,7 +89,52 @@ textarea {
 
 .board-panel > * {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+}
+
+.host-flag-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.backdrop-flag {
+  position: absolute;
+  width: clamp(260px, 33vw, 560px);
+  height: clamp(165px, 21vw, 350px);
+  border: 3px solid rgba(7, 7, 7, 0.18);
+  filter: saturate(1.06);
+  opacity: 0.19;
+  transform: rotate(-10deg);
+}
+
+.backdrop-canada {
+  top: -42px;
+  left: -84px;
+  background: linear-gradient(90deg, #d52b1e 0 26%, #fff 26% 74%, #d52b1e 74%);
+}
+
+.backdrop-mexico {
+  left: 43%;
+  top: 46%;
+  opacity: 0.14;
+  transform: translate(-50%, -50%) rotate(8deg);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(201, 166, 70, 0.5) 0 7%, transparent 7%),
+    linear-gradient(90deg, #006847 0 33.3%, #fff 33.3% 66.6%, #ce1126 66.6%);
+}
+
+.backdrop-usa {
+  right: -96px;
+  bottom: -70px;
+  transform: rotate(11deg);
+  background:
+    linear-gradient(#3c3b6e 0 54%, transparent 54%),
+    repeating-linear-gradient(180deg, #b22234 0 7.69%, #fff 7.69% 15.38%);
+  background-size: 44% 54%, 100% 100%;
+  background-repeat: no-repeat;
 }
 
 .topbar,
@@ -128,7 +173,7 @@ h2 {
   font-size: 1.4rem;
 }
 
-.host-flags {
+.brand-strip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -136,43 +181,25 @@ h2 {
   margin-top: 12px;
 }
 
-.flag {
-  display: inline-block;
-  width: 42px;
-  height: 26px;
-  border: 2px solid var(--ink);
-  box-shadow: 3px 3px 0 var(--ink);
-}
-
-.flag-canada {
-  background: linear-gradient(90deg, #d52b1e 0 26%, #fff 26% 74%, #d52b1e 74%);
-}
-
-.flag-mexico {
-  background: linear-gradient(90deg, #006847 0 33.3%, #fff 33.3% 66.6%, #ce1126 66.6%);
-}
-
-.flag-usa {
-  background:
-    linear-gradient(#3c3b6e 0 54%, transparent 54%),
-    repeating-linear-gradient(180deg, #b22234 0 7.69%, #fff 7.69% 15.38%);
-  background-size: 44% 54%, 100% 100%;
-  background-repeat: no-repeat;
-}
-
 .theme-song {
   min-height: 26px;
   display: inline-flex;
   align-items: center;
   border: 2px solid var(--ink);
-  background: var(--yellow);
-  color: var(--ink);
-  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--ink);
+  color: var(--white);
+  box-shadow: 3px 3px 0 var(--gold);
   font-size: 0.72rem;
   font-weight: 950;
   line-height: 1;
   padding: 4px 8px;
   text-transform: uppercase;
+}
+
+.theme-song.secondary {
+  background: var(--yellow);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
 }
 
 .match-controls {
@@ -269,6 +296,8 @@ textarea {
   border: 4px solid var(--yellow);
   outline: 2px solid var(--ink);
   background:
+    radial-gradient(circle at 50% 50%, rgba(201, 166, 70, 0.14), transparent 34%),
+    linear-gradient(120deg, rgba(215, 25, 32, 0.22), transparent 26%, transparent 74%, rgba(36, 87, 255, 0.2)),
     linear-gradient(90deg, var(--green) 0 3%, transparent 3% 97%, var(--red) 97%),
     var(--white);
   box-shadow: var(--shadow);
@@ -447,7 +476,8 @@ textarea {
   border-top: 3px solid var(--blue);
   border-bottom: 3px solid var(--accent);
   background:
-    linear-gradient(135deg, rgba(0, 132, 61, 0.12), transparent 38%),
+    linear-gradient(135deg, rgba(0, 132, 61, 0.12), transparent 32%),
+    linear-gradient(225deg, rgba(36, 87, 255, 0.1), transparent 34%),
     linear-gradient(var(--grid) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid) 1px, transparent 1px),
     rgba(255, 255, 255, 0.88);
@@ -988,18 +1018,33 @@ textarea {
     gap: 14px;
   }
 
-  .host-flags {
+  .brand-strip {
     gap: 7px;
-  }
-
-  .flag {
-    width: 36px;
-    height: 23px;
   }
 
   .theme-song {
     min-height: 23px;
     font-size: 0.66rem;
+  }
+
+  .backdrop-flag {
+    width: 240px;
+    height: 152px;
+  }
+
+  .backdrop-canada {
+    top: -38px;
+    left: -120px;
+  }
+
+  .backdrop-mexico {
+    left: 44%;
+    top: 34%;
+  }
+
+  .backdrop-usa {
+    right: -130px;
+    bottom: 18%;
   }
 
   .chess-grid {
