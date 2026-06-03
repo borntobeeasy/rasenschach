@@ -255,27 +255,27 @@ textarea {
 }
 
 .backdrop-canada {
-  aspect-ratio: 342 / 171;
+  aspect-ratio: 320 / 160;
   top: -42px;
   left: -84px;
-  background-image: url("assets/flags/canada.svg");
+  background-image: url("assets/flags/canada.png");
 }
 
 .backdrop-mexico {
-  aspect-ratio: 300 / 171;
+  aspect-ratio: 320 / 183;
   left: 43%;
   top: 46%;
   opacity: 0.14;
   transform: translate(-50%, -50%) rotate(8deg);
-  background-image: url("assets/flags/mexico.svg");
+  background-image: url("assets/flags/mexico.png");
 }
 
 .backdrop-usa {
-  aspect-ratio: 370 / 195;
+  aspect-ratio: 320 / 168;
   right: -96px;
   bottom: -70px;
   transform: rotate(11deg);
-  background-image: url("assets/flags/usa.svg");
+  background-image: url("assets/flags/usa.png");
 }
 
 .topbar,
