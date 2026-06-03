@@ -246,6 +246,9 @@ textarea {
   width: clamp(260px, 33vw, 560px);
   height: clamp(165px, 21vw, 350px);
   border: 3px solid rgba(255, 255, 255, 0.18);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   filter: saturate(1.12) blur(0.2px);
   opacity: 0.16;
   transform: rotate(-10deg);
@@ -254,7 +257,7 @@ textarea {
 .backdrop-canada {
   top: -42px;
   left: -84px;
-  background: linear-gradient(90deg, #d52b1e 0 26%, #fff 26% 74%, #d52b1e 74%);
+  background-image: url("assets/flags/canada.svg");
 }
 
 .backdrop-mexico {
@@ -262,20 +265,14 @@ textarea {
   top: 46%;
   opacity: 0.14;
   transform: translate(-50%, -50%) rotate(8deg);
-  background:
-    radial-gradient(circle at 50% 50%, rgba(201, 166, 70, 0.5) 0 7%, transparent 7%),
-    linear-gradient(90deg, #006847 0 33.3%, #fff 33.3% 66.6%, #ce1126 66.6%);
+  background-image: url("assets/flags/mexico.svg");
 }
 
 .backdrop-usa {
   right: -96px;
   bottom: -70px;
   transform: rotate(11deg);
-  background:
-    linear-gradient(#3c3b6e 0 54%, transparent 54%),
-    repeating-linear-gradient(180deg, #b22234 0 7.69%, #fff 7.69% 15.38%);
-  background-size: 44% 54%, 100% 100%;
-  background-repeat: no-repeat;
+  background-image: url("assets/flags/usa.svg");
 }
 
 .topbar,
