@@ -12,8 +12,6 @@ const initialBonuses = {
   white: { rook: 0, bishop: 0, knight: 0, queen: 0, king: 0 },
   black: { rook: 0, bishop: 0, knight: 0, queen: 0, king: 0 },
 };
-const initialKnightCategories = ["Tempo", "Zweikampf", "Passspiel", "Laufwege"];
-
 const state = {
   assignments: theses.map((_, index) => ({
     id: index + 1,
@@ -25,8 +23,6 @@ const state = {
   results: structuredClone(initialBonuses),
   figureImages: loadFigureImages(),
   questionValue: null,
-  knightCategories: [...initialKnightCategories],
-  selectedKnightCategory: "",
 };
 
 const pieceGrid = document.querySelector("#pieceGrid");
@@ -34,14 +30,10 @@ const thesisList = document.querySelector("#thesisList");
 const evaluationList = document.querySelector("#evaluationList");
 const resultsGrid = document.querySelector("#resultsGrid");
 const openSettingsButton = document.querySelector("#openSettingsButton");
-const openMatchdayButton = document.querySelector("#openMatchdayButton");
 const closeSettingsButton = document.querySelector("#closeSettingsButton");
 const settingsDialog = document.querySelector("#settingsDialog");
 const randomQuestionButton = document.querySelector("#randomQuestionButton");
 const questionValueLabel = document.querySelector("#questionValueLabel");
-const knightCategoriesInput = document.querySelector("#knightCategoriesInput");
-const randomKnightButton = document.querySelector("#randomKnightButton");
-const knightCategoryLabel = document.querySelector("#knightCategoryLabel");
 const storageGrid = document.querySelector("#storageGrid");
 const storageStatus = document.querySelector("#storageStatus");
 const nameInputs = {
@@ -257,8 +249,6 @@ function getSectionPayload(section) {
     results: () => ({ results: state.results }),
     randomizer: () => ({
       questionValue: state.questionValue,
-      knightCategories: state.knightCategories,
-      selectedKnightCategory: state.selectedKnightCategory,
     }),
     images: () => ({ figureImages: state.figureImages }),
   };
@@ -336,8 +326,6 @@ function applySectionData(section, data) {
 
     if (section === "randomizer") {
       state.questionValue = data.questionValue ?? null;
-      state.knightCategories = Array.isArray(data.knightCategories) ? data.knightCategories : [...initialKnightCategories];
-      state.selectedKnightCategory = data.selectedKnightCategory || "";
     }
 
     if (section === "images") {
@@ -671,14 +659,6 @@ function renderRandomizerState() {
   if (questionValueLabel) {
     questionValueLabel.textContent = state.questionValue === null ? "noch nicht gewürfelt" : getSignedNumber(state.questionValue);
   }
-
-  if (knightCategoriesInput && document.activeElement !== knightCategoriesInput) {
-    knightCategoriesInput.value = state.knightCategories.join("\n");
-  }
-
-  if (knightCategoryLabel) {
-    knightCategoryLabel.textContent = state.selectedKnightCategory || "noch nicht gewählt";
-  }
 }
 
 function getSignedNumber(value) {
@@ -735,10 +715,6 @@ openSettingsButton.addEventListener("click", () => {
   }
 });
 
-openMatchdayButton.addEventListener("click", () => {
-  // Der Button bleibt sichtbar; die Spieltag-Funktion dahinter ist bewusst entfernt.
-});
-
 closeSettingsButton.addEventListener("click", () => {
   if (typeof settingsDialog.close === "function") {
     settingsDialog.close();
@@ -770,21 +746,4 @@ randomQuestionButton.addEventListener("click", () => {
   const values = [-3, -2, -1, 1, 2, 3];
   state.questionValue = values[Math.floor(Math.random() * values.length)];
   render();
-});
-
-knightCategoriesInput.addEventListener("input", () => {
-  state.knightCategories = knightCategoriesInput.value
-    .split("\n")
-    .map((item) => item.trim())
-    .filter(Boolean);
-});
-
-randomKnightButton.addEventListener("click", () => {
-  if (!state.knightCategories.length) {
-    state.selectedKnightCategory = "";
-  } else {
-    const index = Math.floor(Math.random() * state.knightCategories.length);
-    state.selectedKnightCategory = state.knightCategories[index];
-  }
-  renderRandomizerState();
 });
