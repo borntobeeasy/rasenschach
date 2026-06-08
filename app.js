@@ -565,7 +565,7 @@ function getBaseScore(assignment) {
 
   if (piece.id === "bishop") {
     if (assignment.polarity !== "positive") return 0;
-    return piece.base;
+    return -piece.base;
   }
 
   if (piece.id === "rook") {
