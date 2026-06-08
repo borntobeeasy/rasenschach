@@ -559,7 +559,13 @@ function getBaseScore(assignment) {
   const sign = assignment.polarity === "positive" ? 1 : -1;
 
   if (piece.id === "knight") {
-    return (state.questionValue ?? assignment.knightSwing) * sign;
+    if (assignment.polarity !== "positive") return 0;
+    return state.questionValue ?? assignment.knightSwing;
+  }
+
+  if (piece.id === "bishop") {
+    if (assignment.polarity !== "positive") return 0;
+    return piece.base;
   }
 
   if (piece.id === "rook") {
