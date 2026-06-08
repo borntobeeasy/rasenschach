@@ -568,6 +568,11 @@ function getBaseScore(assignment) {
     return -piece.base;
   }
 
+  if (piece.id === "queen") {
+    if (assignment.polarity !== "positive") return 0;
+    return piece.base;
+  }
+
   if (piece.id === "rook") {
     return piece.base * sign * -1;
   }
